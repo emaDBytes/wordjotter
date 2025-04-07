@@ -9,6 +9,8 @@ import {
   Divider,
 } from "react-native-paper";
 
+import { fetchWordDefinition } from "../services/dictionaryService";
+
 export default function SearchScreen() {
   const [searchTerm, setSearchTerm] = useState("");
   const [language, setLanguage] = useState("en"); // 'en' for English and 'fi' for Finnish.
@@ -24,21 +26,8 @@ export default function SearchScreen() {
     setResults(null);
 
     try {
-      if (language === "en") {
-        const response = await fetch(
-          `https://api.dictionaryapi.dev/api/v2/entries/${language}/${searchTerm.trim()}`
-        );
-
-        if (!response.ok) {
-          throw new Error("Word not found");
-        }
-
-        const data = await response.json();
-        setResults(data);
-      } else {
-        // I will implement finnish dict. later....
-        throw new Error("P;ease wait for the Finnish dict's implementation");
-      }
+      const data = await fetchWordDefinition(searchTerm.trim(), language);
+      setResults(data);
     } catch (error) {
       setError(error.message);
     } finally {
