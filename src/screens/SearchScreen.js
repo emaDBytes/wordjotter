@@ -7,9 +7,11 @@ import {
   Chip,
   ActivityIndicator,
   Divider,
+  Snackbar,
 } from "react-native-paper";
 
 import { fetchWordDefinition } from "../services/dictionaryService";
+import { saveWord } from "../services/databaseService";
 
 export default function SearchScreen() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -17,6 +19,32 @@ export default function SearchScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState(null);
   const [error, setError] = useState(null);
+  const [snackbarVisible, setSnackbarVisible] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+
+  const handleSaveWord = async (entry, meaningIndex, definitionIndex) => {
+    const meaning = entry.meanings[meaningIndex];
+    const definition = meaning.definition[definitionIndex];
+
+    const wordData = {
+      word: entry.word,
+      language,
+      definition: definition.definition,
+      phonetic: entry.phonetic || "",
+      example: definition.example || "",
+      category: meaning.partOfSpeech,
+    };
+
+    const success = await saveWord(wordData);
+
+    if (success) {
+      setSnackbarMessage(`"${entry.word}" is now safe and sound!`);
+    } else {
+      setSnackbarMessage("Uh-oh, save failed—give it another go!");
+    }
+
+    setSnackbarVisible(true);
+  };
 
   const searchWord = async () => {
     if (!searchTerm.trim()) return;
@@ -119,6 +147,15 @@ export default function SearchScreen() {
                           "{def.example}"
                         </Text>
                       )}
+
+                      <Button
+                        icon="bookmark-outline"
+                        mode="text"
+                        compact
+                        onPress={() => handleSaveWord(entry, mIndex, dIndex)}
+                      >
+                        Lock It In
+                      </Button>
                     </View>
                   ))}
 
@@ -131,6 +168,16 @@ export default function SearchScreen() {
           ))}
         </ScrollView>
       )}
+
+      <Snackbar
+        visible={snackbarVisible}
+        onDismiss={() => setSnackbarVisible(false)}
+        duration={3000}
+        action={{
+          label: "Close",
+          onPress: () => setSnackbarVisible(false),
+        }}
+      ></Snackbar>
     </View>
   );
 }
