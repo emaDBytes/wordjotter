@@ -132,7 +132,7 @@ export default function SearchScreen() {
               </Text>
 
               {entry.meanings.map((meaning, mIndex) => (
-                <View key={index} style={styles.meaningContainer}>
+                <View key={mIndex} style={styles.meaningContainer}>
                   <Text variant="titleMedium" style={styles.partOfSpeech}>
                     {meaning.partOfSpeech}
                   </Text>

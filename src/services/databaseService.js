@@ -48,7 +48,7 @@ export const saveWord = async (wordData) => {
 export const getSavedWords = async () => {
   try {
     const result = await db.getAllAsync(
-      "SELECT * FROM saved_words ORDER BY created-at DESC"
+      "SELECT * FROM saved_words ORDER BY created_at DESC"
     );
     return result;
   } catch (error) {
