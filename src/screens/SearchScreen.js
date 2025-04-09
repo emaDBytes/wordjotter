@@ -24,7 +24,7 @@ export default function SearchScreen() {
 
   const handleSaveWord = async (entry, meaningIndex, definitionIndex) => {
     const meaning = entry.meanings[meaningIndex];
-    const definition = meaning.definition[definitionIndex];
+    const definition = meaning.definitions[definitionIndex];
 
     const wordData = {
       word: entry.word,
