@@ -81,34 +81,36 @@ export default function MyWordsScreen() {
 
   return (
     <View style={styles.container}>
-      <Text variant="headlineMedium" style={styles.title}>
-        My Words
-      </Text>
-
       <Searchbar
-        placeholder="Seek Wordy Treasures"
+        placeholder="Search words..."
         onChangeText={onChangeSearch}
         value={searchQuery}
         style={styles.searchbar}
+        clearIcon={() => (searchQuery ? "close" : "")}
+        onClearIconPress={() => setSearchQuery("")}
       />
 
       {categories.length > 0 && (
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.categoriesContainer}
-        >
-          {categories.map((category) => (
-            <Chip
-              key={category}
-              selected={selectedCategory === category}
-              onPress={() => handleCategorySelect(category)}
-              style={styles.categoryChip}
-            >
-              {category}
-            </Chip>
-          ))}
-        </ScrollView>
+        <View style={styles.chipContainer}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.categoriesContent}
+            bounces={false}
+          >
+            {categories.map((category) => (
+              <Chip
+                key={category}
+                selected={selectedCategory === category}
+                onPress={() => handleCategorySelect(category)}
+                style={styles.categoryChip}
+                mode="outlined"
+              >
+                {category}
+              </Chip>
+            ))}
+          </ScrollView>
+        </View>
       )}
 
       <ScrollView
@@ -158,7 +160,7 @@ export default function MyWordsScreen() {
                     {word.phonetic}
                   </Text>
                 )}
-                {word.example && (
+                {word.notes && (
                   <>
                     <Divider style={styles.divider} />
                     <Text>Notes: {word.notes}</Text>
@@ -177,25 +179,30 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-  },
-  title: {
-    textAlign: "center",
-    marginBottom: 16,
+    backgroundColor: "#f8f8f8",
   },
   searchbar: {
     marginBottom: 16,
+    elevation: 2,
   },
   categoriesContainer: {
     marginBottom: 16,
+    maxHeight: "100%",
+  },
+  categoriesContent: {
+    paddingRight: 8,
   },
   categoryChip: {
     marginRight: 8,
+    backgroundColor: "#f0f0f0",
   },
   wordsContainer: {
     flex: 1,
   },
   wordCard: {
     marginBottom: 12,
+    elevation: 2,
+    borderRadius: 8,
   },
   phonetic: {
     fontStyle: "italic",
