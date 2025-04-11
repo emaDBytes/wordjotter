@@ -16,6 +16,7 @@ import {
   openFinnishDictionary,
 } from "../services/dictionaryService";
 import { saveWord } from "../services/databaseService";
+import SpeakButton from "../components/SpeakButton";
 
 export default function SearchScreen() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -231,9 +232,12 @@ export default function SearchScreen() {
         <ScrollView style={styles.resultsContainer}>
           {results.map((entry, index) => (
             <View key={index} style={styles.resultsCard}>
-              <Text variant="headlineSmall" style={styles.word}>
-                {entry.word}
-              </Text>
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Text variant="headlineSmall" style={styles.word}>
+                  {entry.word}
+                </Text>
+                <SpeakButton text={entry.word} language={language} />
+              </View>
               <Text variant="bodyMedium" style={styles.phonetic}>
                 {entry.phonetic}
               </Text>

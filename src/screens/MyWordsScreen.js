@@ -12,6 +12,7 @@ import {
 } from "react-native-paper";
 
 import { getSavedWords, deleteWord } from "../services/databaseService";
+import SpeakButton from "../components/SpeakButton";
 
 export default function MyWordsScreen() {
   const [savedWords, setSavedWords] = useState([]);
@@ -146,11 +147,14 @@ export default function MyWordsScreen() {
                   word.language === "en" ? "English" : "Finnish"
                 } . ${word.category}`}
                 right={(props) => (
-                  <IconButton
-                    {...props}
-                    icon="delete"
-                    onPress={() => handleDeleteWord(word.id)}
-                  />
+                  <View style={{ flexDirection: "row" }}>
+                    <SpeakButton text={word.word} language={word.language} />
+                    <IconButton
+                      {...props}
+                      icon="delete"
+                      onPress={() => handleDeleteWord(word.id)}
+                    />
+                  </View>
                 )}
               />
               <Card.Content>
