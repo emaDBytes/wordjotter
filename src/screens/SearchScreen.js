@@ -8,9 +8,13 @@ import {
   ActivityIndicator,
   Divider,
   Snackbar,
+  Card,
 } from "react-native-paper";
 
-import { fetchWordDefinition } from "../services/dictionaryService";
+import {
+  fetchWordDefinition,
+  openFinnishDictionary,
+} from "../services/dictionaryService";
 import { saveWord } from "../services/databaseService";
 
 export default function SearchScreen() {
@@ -21,6 +25,12 @@ export default function SearchScreen() {
   const [error, setError] = useState(null);
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [finnishWordInput, setFinnishWordInput] = useState({
+    word: "",
+    definition: "",
+    notes: "",
+  });
+  const [showFinnishInput, setShowFinnishInput] = useState(false);
 
   const handleSaveWord = async (entry, meaningIndex, definitionIndex) => {
     const meaning = entry.meanings[meaningIndex];
@@ -46,16 +56,68 @@ export default function SearchScreen() {
     setSnackbarVisible(true);
   };
 
+  const handleSaveFinnishWord = async () => {
+    if (!finnishWordInput.word.trim()) {
+      setSnackbarMessage("Enter a word!");
+      setSnackbarVisible(true);
+      return;
+    }
+
+    const wordData = {
+      word: finnishWordInput.word,
+      language: "fi",
+      definition: finnishWordInput.definition,
+      phonetic: "",
+      example: "",
+      notes: finnishWordInput.notes,
+      category: "default",
+    };
+
+    const success = await saveWord(wordData);
+
+    if (success) {
+      setSnackbarMessage(`"${finnishWordInput.word}" is now safe and sound!`);
+
+      // Reset the form
+      setFinnishWordInput({
+        word: "",
+        definition: "",
+        notes: "",
+      });
+      setShowFinnishInput(false);
+    } else {
+      setSnackbarMessage("Uh-oh, save failed—give it another go!");
+    }
+    setSnackbarVisible(true);
+  };
+
   const searchWord = async () => {
     if (!searchTerm.trim()) return;
 
     setIsLoading(true);
     setError(null);
     setResults(null);
+    setShowFinnishInput(false); // Hide Finnish input form, if it was open
 
     try {
       const data = await fetchWordDefinition(searchTerm.trim(), language);
-      setResults(data);
+
+      // Checl if there;s a flag for external lookup
+      if (data.type === "external" && data.language === "fi") {
+        // Open Finnish dictionary in browser
+        await openFinnishDictionary(searchTerm.trim());
+
+        // After browser is closed, show the input form for Finnish word
+        setFinnishWordInput({
+          ...finnishWordInput,
+          word: searchTerm.trim(),
+        });
+        setShowFinnishInput(true);
+        setResults(null); // Clear any previous results
+      } else {
+        // Regular English dictionary results
+        setResults(data);
+      }
     } catch (error) {
       setError(error.message);
     } finally {
@@ -120,6 +182,51 @@ export default function SearchScreen() {
         </View>
       )}
 
+      {/* Finnish word's input form */}
+      {showFinnishInput && (
+        <Card style={styles.finnishInoutCard}>
+          <Card.Title
+            title="Add Finnish Word"
+            subtitle="Enter details after looking it up"
+          />
+          <Card.Content>
+            <TextInput
+              label="Word"
+              value={finnishWordInput.word}
+              onChangeText={(text) =>
+                setFinnishWordInput({ ...finnishWordInput, word: text })
+              }
+              style={styles.finnishInput}
+            />
+            <TextInput
+              label="Definition/Meaning"
+              value={finnishWordInput.definition}
+              onChangeText={(text) =>
+                setFinnishWordInput({ ...finnishWordInput, definition: text })
+              }
+              style={styles.finnishInput}
+              multiline
+            />
+            <TextInput
+              label="Notes (optional)"
+              value={finnishWordInput.notes}
+              onChangeText={(text) =>
+                setFinnishWordInput({ ...finnishWordInput, notes: text })
+              }
+              style={styles.finnishInput}
+              multiline
+            />
+            <Button
+              mode="contained"
+              onPress={handleSaveFinnishWord}
+              style={styles.saveButton}
+            >
+              Pidä tuon kiinni
+            </Button>
+          </Card.Content>
+        </Card>
+      )}
+
       {results && (
         <ScrollView style={styles.resultsContainer}>
           {results.map((entry, index) => (
@@ -177,7 +284,9 @@ export default function SearchScreen() {
           label: "Close",
           onPress: () => setSnackbarVisible(false),
         }}
-      ></Snackbar>
+      >
+        {snackbarMessage}
+      </Snackbar>
     </View>
   );
 }
@@ -230,6 +339,7 @@ const styles = StyleSheet.create({
   },
   resultsContainer: {
     flex: 1,
+    width: "100%",
   },
   resultsCard: {
     backgroundColor: "#f0f0f0",
@@ -265,5 +375,15 @@ const styles = StyleSheet.create({
   },
   divider: {
     marginVertical: 10,
+  },
+  finnishInputCard: {
+    width: "100%",
+    marginBottom: 20,
+  },
+  finnishInput: {
+    marginBottom: 10,
+  },
+  saveButton: {
+    marginTop: 10,
   },
 });
