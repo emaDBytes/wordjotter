@@ -7,6 +7,7 @@ import { Ionicons } from "@expo/vector-icons";
 import HomeScreen from "../screens/HomeScreen";
 import SearchScreen from "../screens/SearchScreen";
 import MyWordsScreen from "../screens/MyWordsScreen";
+import FlashcardScreen from "../screens/FlashcardScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -24,6 +25,8 @@ export default function AppNavigator() {
               iconName = focused ? "search" : "search-outline";
             } else if (route.name === "My Words") {
               iconName = focused ? "book" : "book-outline";
+            } else if (route.name === "Flashcards") {
+              iconName = focused ? "card" : "card-outline";
             }
 
             return <Ionicons name={iconName} size={size} color={color} />;
@@ -33,6 +36,7 @@ export default function AppNavigator() {
         <Tab.Screen name="Home" component={HomeScreen} />
         <Tab.Screen name="Search" component={SearchScreen} />
         <Tab.Screen name="My Words" component={MyWordsScreen} />
+        <Tab.Screen name="Flashcards" component={FlashcardScreen} />
       </Tab.Navigator>
     </NavigationContainer>
   );
