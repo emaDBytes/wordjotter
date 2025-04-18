@@ -80,3 +80,64 @@ export const getWordsByCategory = async (category) => {
     console.error("Yikes, the word sorter’s napping. ", error);
   }
 };
+
+export const saveReminderSetting = async (settings) => {
+  const { enabled, hour, minute } = settings;
+
+  try {
+    // Delete any existing setting first!
+    await db.runAsync("DELETE FROM reminder_settings WHERE id = 1");
+
+    // insert new setting
+    await db.runAsync(
+      "INSERT INTO reminder_settings (id, enabled, hour, minute) VALUES (?, ?, ?, ?)"
+    );
+    return true;
+  } catch (error) {
+    console.error("Error in saving reninder settings: ", error);
+    return false;
+  }
+};
+
+// Get reminder settings
+export const getRemindrSettings = async () => {
+  try {
+    // Create the table if it does not exist yet
+    await db.execAsync(`
+      CREATE TABLE IF NOT EXISTS reminder_settings (
+        id INTEGER PRIMARY KEY,
+        enabled INTEGER DEFAULT 0,
+        hour INTEGER DEFAULT 20,
+        minute INTEGER DEFAULT 0
+      );
+      `);
+
+    // try to get existing settings
+    const settings = await db.getAllAsync(
+      "SELECT * FROM reminder_settings WHERE id = 1"
+    );
+
+    // if no setting exists, return defaults
+    if (settings.length === 0) {
+      return {
+        enabled: false,
+        hour: 20,
+        minute: 0,
+      };
+    }
+
+    // Return the existing settings
+    return {
+      enabled: settings[0].enabled === 1,
+      hour: settings[0].hour,
+      minute: settings[0].minute,
+    };
+  } catch (error) {
+    console.error("Error in getting reminder settings: ", error);
+    return {
+      enabled: false,
+      hour: 20,
+      minute: 0,
+    };
+  }
+};

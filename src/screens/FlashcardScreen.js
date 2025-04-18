@@ -4,7 +4,6 @@ import { Text, Card, Button, IconButton } from "react-native-paper";
 
 import { getSavedWords } from "../services/databaseService";
 import SpeakButton from "../components/SpeakButton";
-import { transform } from "@babel/core";
 
 export default function FlashcardScreen() {
   const [cards, setCards] = useState([]);
@@ -17,21 +16,31 @@ export default function FlashcardScreen() {
   }, []);
 
   const loadCards = async () => {
-    const words = await getSavedWords();
+    try {
+      const words = await getSavedWords();
 
-    // Create a copy of the array
-    const shuffled = [...words];
+      if (words && words.length > 0) {
+        // Create a copy of the array
+        const shuffled = [...words];
 
-    // Fisher-Yates shuffle algorithm
-    for (let i = shuffled.length; i > 0; i--) {
-      // Generate random index from 0 to i
-      let j = Math.floor(Math.random() * (i + 1));
+        // Fisher-Yates shuffle algorithm
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          // Generate random index from 0 to i
+          let j = Math.floor(Math.random() * (i + 1));
 
-      // Swap elements at i and j
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+          // Swap elements at i and j
+          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+
+        setCurrentIndex(0); // Reset to the first card when loading new cards
+        setCards(shuffled);
+      } else {
+        setCards([]);
+      }
+    } catch (error) {
+      console.error("Error loasing cards: ", error);
+      setCards([]);
     }
-
-    setCards(shuffled);
   };
 
   const flipCard = () => {
@@ -104,6 +113,15 @@ export default function FlashcardScreen() {
         <Button mode="contained" onPress={loadCards} style={styles.button}>
           Refresh
         </Button>
+      </View>
+    );
+  }
+
+  if (currentIndex >= cards.length || !cards[currentIndex]) {
+    // Reset to the first card if the current index is invalid
+    return (
+      <View style={styles.container}>
+        <Text>Loading cards...</Text>
       </View>
     );
   }
