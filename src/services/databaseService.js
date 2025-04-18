@@ -100,7 +100,7 @@ export const saveReminderSetting = async (settings) => {
 };
 
 // Get reminder settings
-export const getRemindrSettings = async () => {
+export const getReminderSettings = async () => {
   try {
     // Create the table if it does not exist yet
     await db.execAsync(`
