@@ -8,6 +8,7 @@ import HomeScreen from "../screens/HomeScreen";
 import SearchScreen from "../screens/SearchScreen";
 import MyWordsScreen from "../screens/MyWordsScreen";
 import FlashcardScreen from "../screens/FlashcardScreen";
+import ReminderScreen from "../screens/ReminderScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -27,6 +28,8 @@ export default function AppNavigator() {
               iconName = focused ? "book" : "book-outline";
             } else if (route.name === "Flashcards") {
               iconName = focused ? "card" : "card-outline";
+            } else if (route.name === "Settings") {
+              iconName = focused ? "notifications" : "notifications-outline";
             }
 
             return <Ionicons name={iconName} size={size} color={color} />;
@@ -37,6 +40,7 @@ export default function AppNavigator() {
         <Tab.Screen name="Search" component={SearchScreen} />
         <Tab.Screen name="My Words" component={MyWordsScreen} />
         <Tab.Screen name="Flashcards" component={FlashcardScreen} />
+        <Tab.Screen name="Settings" component={ReminderScreen} />
       </Tab.Navigator>
     </NavigationContainer>
   );

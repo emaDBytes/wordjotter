@@ -172,12 +172,14 @@ const styles = StyleSheet.create({
   },
   actionsContainer: {
     flexDirection: "row",
+    flexWrap: "wrap",
     justifyContent: "space-between",
     marginBottom: 16,
   },
   actionButton: {
     flex: 1,
     marginHorizontal: 4,
+    marginBottom: 8,
   },
   recentCard: {
     marginBottom: 16,
