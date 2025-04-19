@@ -85,12 +85,22 @@ export const saveReminderSetting = async (settings) => {
   const { enabled, hour, minute } = settings;
 
   try {
+    // Check if the table exists
+    await db.execAsync(`
+      CREATE TABLE IF NOT EXISTS reminder_settings (
+        id INTEGER PRIMARY KEY,
+        enabled INTEGER DEFAULT 0,
+        hour INTEGER DEFAULT 20,
+        minute INTEGER DEFAULT 0
+      );`);
+
     // Delete any existing setting first!
     await db.runAsync("DELETE FROM reminder_settings WHERE id = 1");
 
     // insert new setting
     await db.runAsync(
-      "INSERT INTO reminder_settings (id, enabled, hour, minute) VALUES (?, ?, ?, ?)"
+      "INSERT INTO reminder_settings (id, enabled, hour, minute) VALUES (?, ?, ?, ?)",
+      [1, enabled ? 1 : 0, hour, minute]
     );
     return true;
   } catch (error) {

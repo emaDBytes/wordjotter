@@ -1,26 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, View, Platform } from "react-native";
-import {
-  Text,
-  Switch,
-  Button,
-  TextInput,
-  Card,
-  Snackbar,
-} from "react-native-paper";
+import { StyleSheet, View, Platform, Alert } from "react-native";
+import { Text, Switch, Button, Card, Snackbar } from "react-native-paper";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
 import {
   requestNotificationPermissions,
   scheduleDailyReminder,
   cancelAllReminders,
+  checkNotificationPermissions,
+  getScheduledReminders,
 } from "../services/notificationService";
 
 import {
   saveReminderSetting,
   getReminderSettings,
 } from "../services/databaseService";
-import { isEnabled } from "react-native/Libraries/Performance/Systrace";
 
 export default function ReminderScreen() {
   const [enabled, setEnabled] = useState(false);
@@ -28,42 +22,59 @@ export default function ReminderScreen() {
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [hasPermission, setHasPermission] = useState(false);
 
-  // Load saved settings on component mount
+  // Load saved settings and check permissions on component mount
   useEffect(() => {
-    loadSettings();
+    const checkPermissionsAndLoad = async () => {
+      // check if we have notification permissions
+      const permissionGranted = await checkNotificationPermissions();
+      setHasPermission(permissionGranted);
+      console.log("initial permission check: ", permissionGranted);
+
+      // Load settings regardless of permission status
+      loadSettings();
+    };
+
+    checkPermissionsAndLoad();
   }, []);
 
   const loadSettings = async () => {
-    const settings = await getReminderSettings();
+    try {
+      const settings = await getReminderSettings();
+      console.log("Retrieved settings: ", settings);
 
-    setEnabled(settings.enabled);
+      // Set the toggle state based on both permission and saved setting
+      // Only enable if we have both permission and teh setting is enabled
+      setEnabled(settings.enabled && hasPermission);
 
-    // set time from hours and minutes
-    const newTime = new Date();
-    newTime.setHours(settings.hour);
-    newTime.setMinutes(settings.minute);
-    setTime(newTime);
+      // set time from hours and minutes
+      const newTime = new Date();
+      newTime.setHours(settings.hour);
+      newTime.setMinutes(settings.minute);
+      setTime(newTime);
+    } catch (error) {
+      console.error("Error in loading settings: ", error);
+    }
   };
 
   const toggleSwitch = async (value) => {
-    setEnabled(value);
-
     if (value) {
-      // Request permissions if enabling reminders
-      const hasPermission = await requestNotificationPermissions();
+      // only proceed if trying to enable
+      const permissionGranted = await requestNotificationPermissions();
+      setHasPermission(permissionGranted);
 
-      if (!hasPermission) {
+      if (!permissionGranted) {
         setSnackbarMessage(
           "Notification permission denied. Cannot enable reminders."
         );
         setSnackbarVisible(true);
-        setEnabled(false);
         return;
       }
     }
 
-    // save teh new settings
+    // update state and save settings
+    setEnabled(value);
     await saveSettings(value, time);
   };
 
@@ -81,14 +92,14 @@ export default function ReminderScreen() {
     const minute = selectTime.getMinutes();
 
     // Save to database
-    await saveReminderSettings({
+    await saveReminderSetting({
       enabled: isEnabled,
       hour,
       minute,
     });
 
     // Scheduke or cancel notifications
-    if (isEnabled) {
+    if (isEnabled && hasPermission) {
       await scheduleDailyReminder(
         hour,
         minute,
@@ -99,12 +110,31 @@ export default function ReminderScreen() {
       setSnackbarMessage(
         `Daily remindr set for ${hour}:${minute < 10 ? "0" + minute : minute}`
       );
-    } else {
+    } else if (!isEnabled) {
       await cancelAllReminders();
       setSnackbarMessage("Reminder disabled");
     }
 
     setSnackbarVisible(true);
+  };
+
+  // debugging function
+  const debugPermissions = async () => {
+    const currentPermission = await checkNotificationPermissions();
+    console.log("Current permission status: ", currentPermission);
+    Alert.alert(
+      "Permission Status",
+      `Current permission: ${currentPermission}`
+    );
+  };
+
+  const checkScheduledNotifications = async () => {
+    const scheduledNotifications = await getScheduledReminders();
+    console.log("Scheduled notifications: ", scheduledNotifications);
+    Alert.alert(
+      "Scheduled Notifications",
+      `Found ${scheduledNotifications.length} notifications`
+    );
   };
 
   return (
@@ -146,6 +176,26 @@ export default function ReminderScreen() {
         </Card.Content>
       </Card>
 
+      {/* debugging in development */}
+      {__DEV__ && (
+        <View style={styles.debugButtons}>
+          <Button
+            mode="contained"
+            onPress={debugPermissions}
+            style={styles.debugButton}
+          >
+            Debug Permissions
+          </Button>
+          <Button
+            mode="contained"
+            onPress={checkScheduledNotifications}
+            style={styles.debugButton}
+          >
+            Check Scheduled
+          </Button>
+        </View>
+      )}
+
       <Snackbar
         visible={snackbarVisible}
         onDismiss={() => setSnackbarVisible(false)}
@@ -183,5 +233,11 @@ const styles = StyleSheet.create({
     marginTop: 16,
     fontStyle: "italic",
     color: "#666",
+  },
+  debugButton: {
+    marginTop: 10,
+  },
+  debugButtons: {
+    marginTop: 20,
   },
 });
