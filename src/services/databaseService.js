@@ -15,6 +15,8 @@ export const initDatabase = () => {
             example TEXT,
             notes TEXT,
             category TEXT,
+            learning_level INTEGER DEFAULT 0,
+            next_review_date TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
     `);
@@ -149,5 +151,23 @@ export const getReminderSettings = async () => {
       hour: 20,
       minute: 0,
     };
+  }
+};
+
+// Update a word's learning status
+export const updateWordLearningStatus = async (
+  wordId,
+  learningLevel,
+  nextReviewDate
+) => {
+  try {
+    await db.runAsync(
+      "UPDATE saved_words SET learning_level = ?, next_review_date = ? WHERE id = ?",
+      [learningLevel, nextReviewDate, wordId]
+    );
+    return true;
+  } catch (error) {
+    console.error("error in updating word learning stastus: ", error);
+    return false;
   }
 };
