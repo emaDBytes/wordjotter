@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { StyleSheet, View, Animated, TouchableOpacity } from "react-native";
-import { Text, Card, Button, IconButton } from "react-native-paper";
+import { Text, Button } from "react-native-paper";
 
-import { getSavedWords } from "../services/databaseService";
 import SpeakButton from "../components/SpeakButton";
+import {
+  getWordsForReview,
+  updateWordAfterReview,
+} from "../services/learningService";
 
 export default function FlashcardScreen() {
   const [cards, setCards] = useState([]);
@@ -17,7 +20,7 @@ export default function FlashcardScreen() {
 
   const loadCards = async () => {
     try {
-      const words = await getSavedWords();
+      const words = await getWordsForReview();
 
       if (words && words.length > 0) {
         // Create a copy of the array
@@ -128,6 +131,26 @@ export default function FlashcardScreen() {
 
   const currentCard = cards[currentIndex];
 
+  const handleKnownWord = async () => {
+    if (cards.length > 0 && currentIndex < cards.length) {
+      const currentWord = cards[currentIndex];
+      await updateWordAfterReview(currentWord.id, true);
+
+      // Move to next card
+      nextCard();
+    }
+  };
+
+  const handleNeedsPractice = async () => {
+    if (cards.length > 0 && currentIndex < cards.length) {
+      const currentWord = cards[currentIndex];
+      await updateWordAfterReview(currentWord.id, false);
+
+      // Move to next card
+      nextCard();
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.flashcardContainer}>
@@ -192,6 +215,25 @@ export default function FlashcardScreen() {
           style={styles.navButton}
         >
           Next
+        </Button>
+      </View>
+
+      <View style={styles.reviewControls}>
+        <Button
+          mode="contained"
+          onPress={handleNeedsPractice}
+          style={styles.needPracticeButton}
+          icon="brain"
+        >
+          Need Practice
+        </Button>
+        <Button
+          mode="contained"
+          onPress={handleKnownWord}
+          style={styles.knownButton}
+          icon="check-circle"
+        >
+          Known
         </Button>
       </View>
 
@@ -293,5 +335,21 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 10,
+  },
+  reviewControls: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+    marginTop: 20,
+  },
+  needPracticeButton: {
+    flex: 1,
+    marginHorizontal: 5,
+    backgroundColor: "#ff6b6b",
+  },
+  knownButton: {
+    flex: 1,
+    marginHorizontal: 5,
+    backgroundColor: "#51cf66",
   },
 });

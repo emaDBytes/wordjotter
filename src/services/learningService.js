@@ -1,4 +1,8 @@
 import { getSavedWords, updateWordLearningStatus } from "./databaseService";
+import {
+  getWordsForReview,
+  updateWordAfterReview,
+} from "../services/learningService";
 
 // Spaced repetition intervals in days
 const INTERVALS = [1, 3, 7, 14, 30, 90];
