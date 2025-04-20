@@ -1,7 +1,25 @@
+/**
+ * Dictionary Service
+ *
+ * Handles dictionary lookups for multilingual word definitins.
+ * Supports both direct API integration for English and external
+ * browser-based dictionary access for Finnish
+ *
+ * @module services/dictionaryService
+ */
+
 import * as WebBrowser from "expo-web-browser";
 
-// Fetch word definition fo English or
-// handle Finnish lookup
+/**
+ * Fetches word definitions based on the specified language.
+ * For English words, uses the Free Dictionary API.
+ * For Finnish words, returns metadata for external lookup.
+ *
+ * @param {string} word - The word to look up
+ * @param {string} language - Language code ('en' for English, 'fi' for Finnish)
+ * @returns {Promise<Array|object>} - Array of definition objects for English or external lookup for Finnish
+ * @throws {Error} - If API request fails or language is unsupported
+ */
 export const fetchWordDefinition = async (word, language = "en") => {
   try {
     if (language === "en") {
@@ -29,7 +47,14 @@ export const fetchWordDefinition = async (word, language = "en") => {
   }
 };
 
-// Open Finnish dictionary in browser
+/**
+ * OPens the RedFox Dictionary in the device's browser for Finnish word lookups.
+ * This provides a comprehensive Finnish-English dictionary experience without requiring direct API integration.
+ *
+ * @param {string} word - The Finnish word to look up
+ * @returns {Promise<Object>} - Result object from WebBrowser.openBrowserAsync
+ * @throws {} - If browser cannot be openned or URL is invalid
+ */
 export const openFinnishDictionary = async (word) => {
   try {
     // Use REdFox dectionary for Finnish lookup
