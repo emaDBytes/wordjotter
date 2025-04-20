@@ -1,9 +1,21 @@
+/**
+ * Database Service
+ *
+ * Provides functions for SQLite database operations including initialization,
+ * CRUD operations for vocabulary words, and setting management.
+ *
+ * @module services/databaseService
+ */
+
 import * as SQLite from "expo-sqlite";
 
 // Open or create the database
 const db = SQLite.openDatabaseSync("wordjotter.db");
 
-// Initialize the database
+/**
+ * Initializes the database by creating required tables if they don't ezist.
+ * Creates the saved_words table with columns for word data and learnig progress.
+ */
 export const initDatabase = () => {
   db.execAsync(`
         CREATE TABLE IF NOT EXISTS saved_words (
@@ -22,7 +34,18 @@ export const initDatabase = () => {
     `);
 };
 
-// Save a woed to the database
+/**
+ * Saves a word and its associated data to hte database.
+ * @param {object} wordData - Object containing word information
+ * @param {string} wordData.word - The word text
+ * @param {string} wordData.language - Language code ('en' or 'fi')
+ * @param {string} wordData.definition - word definition
+ * @param {string} wordData.phonetic - Phonetic pronaunciation (optiona;)
+ * @param {string} wordData.example - Example usage (optional)
+ * @param {string} wordData.notes - User's notes (optional)
+ * @param {string} wordData.category - Word's category (defaults to 'default')
+ * @returns {Promise<boolean>} - True if save operation secceeds, false otherwise
+ */
 export const saveWord = async (wordData) => {
   const {
     word,
@@ -46,7 +69,12 @@ export const saveWord = async (wordData) => {
   }
 };
 
-// Get all saved words
+/**
+ *
+ * @returns REtrives all saved words from the database ordered by creation date (newest first).
+ *
+ * @returns {Promise<Array>} Array of word objexts
+ */
 export const getSavedWords = async () => {
   try {
     const result = await db.getAllAsync(
@@ -59,7 +87,12 @@ export const getSavedWords = async () => {
   }
 };
 
-// Delete a saved word
+/**
+ * Deletes a word from the database by its ID.
+ *
+ * @param {number} id - ID of the word to be deleted
+ * @returns {Promise<boolean>} true if deletion succeeds, false otherwise
+ */
 export const deleteWord = async (id) => {
   try {
     await db.runAsync("DELETE FROM saved_words WHERE id = ?", [id]);
@@ -70,7 +103,12 @@ export const deleteWord = async (id) => {
   }
 };
 
-// Get words by category
+/**
+ * Retrieves words filtered by their catefory.
+ *
+ * @param {string} category - Category to be used to filter
+ * @returns {Promise<Array>} Array of word objects matching the category
+ */
 export const getWordsByCategory = async (category) => {
   try {
     const result = await db.getAllAsync(
@@ -83,6 +121,16 @@ export const getWordsByCategory = async (category) => {
   }
 };
 
+/**
+ * Saves user reminder settings to the database.
+ * Crates the reminder_settings table if it doesn't exist.
+ *
+ * @param {Object} settings - Reminder settings object
+ * @param {boolean} settings.enabled - Whether reminders are enabled
+ * @param {number} settings.hour - Hour o f day for reminder (0-23)
+ * @param {number} settings.minute - Minuted of hour for reminder (0-59)
+ * @returns {Promise<boolean>} True of save operation succeeds, false otherwise
+ */
 export const saveReminderSetting = async (settings) => {
   const { enabled, hour, minute } = settings;
 
@@ -111,7 +159,16 @@ export const saveReminderSetting = async (settings) => {
   }
 };
 
-// Get reminder settings
+/**
+ *
+ * @returns Retrieves user reminder settings form the database.
+ * Creates the reminder_settings table if it does not exist.
+ *
+ * @returns {Promise<Object>} Object containing reminder settings
+ * @returns {boolean} settings.enabled - whther reminders are enabled
+ * @returns {number} settings.hour - Hour of day for reminder (0-23)
+ * @returns {number} settings.minute - MInute of hour for reminder (0-59)
+ */
 export const getReminderSettings = async () => {
   try {
     // Create the table if it does not exist yet
@@ -154,7 +211,14 @@ export const getReminderSettings = async () => {
   }
 };
 
-// Update a word's learning status
+/**
+ * Updates a word's learning progress in the spaced repetition system.
+ *
+ * @param {number} wordId - ID of the word to update
+ * @param {number} learningLevel - New learning level (0-5)
+ * @param {string} nextReviewDate - ISO string fate for next review
+ * @returns {Promise<boolean>} True if update succeeds, fales otherwise
+ */
 export const updateWordLearningStatus = async (
   wordId,
   learningLevel,
