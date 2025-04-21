@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { StyleSheet, View, Animated, TouchableOpacity } from "react-native";
-import { Text, Button } from "react-native-paper";
+import { Text, Button, Snackbar } from "react-native-paper";
 
 import SpeakButton from "../components/SpeakButton";
 import {
@@ -13,6 +13,8 @@ export default function FlashcardScreen() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [flipAnim] = useState(new Animated.Value(0));
+  const [snackbarVisible, setSnackbarVisible] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
 
   useEffect(() => {
     loadCards();
@@ -132,22 +134,90 @@ export default function FlashcardScreen() {
   const currentCard = cards[currentIndex];
 
   const handleKnownWord = async () => {
-    if (cards.length > 0 && currentIndex < cards.length) {
-      const currentWord = cards[currentIndex];
-      await updateWordAfterReview(currentWord.id, true);
+    try {
+      if (cards.length > 0 && currentIndex < cards.length) {
+        const currentWord = cards[currentIndex];
+        await updateWordAfterReview(currentWord.id, true);
 
-      // Move to next card
-      nextCard();
+        // Show feedback
+        setSnackbarMessage(`Great! "${currentWord.word}" moved to next level.`);
+        setSnackbarVisible(true);
+
+        // Move to next card
+        nextCard();
+      }
+    } catch (error) {
+      console.error("Error in handling known words: ", error);
     }
   };
 
   const handleNeedsPractice = async () => {
-    if (cards.length > 0 && currentIndex < cards.length) {
-      const currentWord = cards[currentIndex];
-      await updateWordAfterReview(currentWord.id, false);
+    try {
+      if (cards.length > 0 && currentIndex < cards.length) {
+        const currentWord = cards[currentIndex];
+        await updateWordAfterReview(currentWord.id, false);
 
-      // Move to next card
-      nextCard();
+        // Show feedback
+        setSnackbarMessage(
+          `"${currentWord.word}" will show up again for practice.`
+        );
+        setSnackbarVisible(true);
+
+        // Move to next card
+        nextCard();
+      }
+    } catch (error) {
+      console.error("Problem in evaluating need to practice: ", error);
+    }
+  };
+
+  const formatNextReviewDate = (dateString) => {
+    try {
+      if (!dateString) {
+        return "Not Scheduled";
+      }
+
+      const date = new Date(dateString);
+      const today = new Date();
+
+      // check if next review is today
+      if (date.toDateString() === today.toDateString()) {
+        return "Today";
+      }
+
+      // Check if next review is tomorrow
+      const tomorrow = new Date();
+      tomorrow.setDate(today.getDate() + 1);
+      if (date.toDateString() === tomorrow.toDateString()) {
+        return "Tomorrow";
+      }
+
+      // Otherwise format as MM/DD/YYYY
+      return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+    } catch (error) {
+      console.error("Error in showing next review: ", error);
+    }
+  };
+
+  // Add a helper to show the learnitn level in a readable form
+  const getLearningLevelText = (level) => {
+    try {
+      if (level === undefined || level === null) {
+        return "New word";
+      }
+
+      const levels = [
+        "Just started",
+        "Learning",
+        "Familiar",
+        "Almost known",
+        "Well known",
+        "Mastered",
+      ];
+
+      return levels[Math.min(level, levels.length - 1)];
+    } catch (error) {
+      console.log("Error in verbalizing the learning level: ", error);
     }
   };
 
@@ -172,6 +242,17 @@ export default function FlashcardScreen() {
                 language={currentCard.language}
               />
             </View>
+
+            <View style={styles.learningStatus}>
+              <Text style={styles.learningStatusText}>
+                {getLearningLevelText(currentCard.learning_level)}
+              </Text>
+              <Text style={styles.nextReviewText}>
+                Next review:{" "}
+                {formatNextReviewDate(currentCard.next_review_date)}
+              </Text>
+            </View>
+
             <Text style={styles.cardInstructions}>
               Tap to see the definition
             </Text>
@@ -240,6 +321,15 @@ export default function FlashcardScreen() {
       <Button mode="contained" onPress={loadCards} style={styles.shuffleButton}>
         Shuffle Cards
       </Button>
+
+      <Snackbar
+        visible={snackbarVisible}
+        onDismiss={() => setSnackbarVisible(false)}
+        duration={2000}
+        style={styles.snackbar}
+      >
+        {snackbarMessage}
+      </Snackbar>
     </View>
   );
 }
@@ -351,5 +441,22 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 5,
     backgroundColor: "#51cf66",
+  },
+  learningStatus: {
+    marginTop: 15,
+    alignItems: "center",
+  },
+  learningStatusText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#6200ee",
+  },
+  nextReviewText: {
+    fontSize: 12,
+    color: "#666",
+    marginTop: 5,
+  },
+  snackbar: {
+    bottom: 20,
   },
 });
