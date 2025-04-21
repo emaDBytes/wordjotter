@@ -3,7 +3,7 @@ import { StyleSheet, View, ScrollView, Image } from "react-native";
 import { Text, Card, Button, List, Divider } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 
-import { getSavedWords } from "../services/databaseService";
+import { getSavedWords, getLearningStats } from "../services/databaseService";
 
 export default function HomeScreen() {
   const navigation = useNavigation();
@@ -19,17 +19,28 @@ export default function HomeScreen() {
   }, []);
 
   const loadData = async () => {
-    const words = await getSavedWords();
+    try {
+      const words = await getSavedWords();
 
-    // Get 5 most recent words
-    setRecentWords(words.slice(0, 5));
+      // Get 5 most recent words
+      setRecentWords(words.slice(0, 5));
 
-    // Calculate what we have
-    setStats({
-      total: words.length,
-      english: words.filter((word) => word.language === "en").length,
-      finnish: words.filter((word) => word.language === "fi").length,
-    });
+      // Get learning statistics
+      const learningStats = await getLearningStats();
+      console.log("Learning stats: ", learningStats);
+
+      // Calculate what we have
+      setStats({
+        total: words.length,
+        english: words.filter((word) => word.language === "en").length,
+        finnish: words.filter((word) => word.language === "fi").length,
+        knownWords: learningStats.knownWords,
+        needPractice: learningStats.needPractice,
+        learningLevels: learningStats.learningLevels,
+      });
+    } catch (error) {
+      console.error("Error in loading data: ", error);
+    }
   };
 
   return (
@@ -55,6 +66,45 @@ export default function HomeScreen() {
               <Text variant="displaySmall">{stats.finnish}</Text>
               <Text variant="bodySmall">Finnish</Text>
             </View>
+          </View>
+        </Card.Content>
+      </Card>
+
+      <Card style={styles.progressCard}>
+        <Card.Content>
+          <Text variant="titleMedium">Learning Progress</Text>
+
+          <View style={styles.progressContainer}>
+            {/* Progress bar */}
+            <View style={styles.progressBarContainer}>
+              <View
+                style={[
+                  styles.progressBar,
+                  {
+                    width: `S{stats.total > 0 ? (stats.knownWords / stats.total) * 100 : 0}%`,
+                  },
+                ]}
+              />
+            </View>
+
+            <View style={styles.progressStats}>
+              <View style={styles.progressStat}>
+                <Text variant="titleLarge">{stats.needPractice}</Text>
+                <Text variant="bodySmall">Need Practice</Text>
+              </View>
+            </View>
+
+            {stats.total > 0 ? (
+              <Text style={styles.progressText}>
+                Ypu've mastered{" "}
+                {Math.round((stats.knownWords / stats.total) * 100)}% of your
+                vocabulary!
+              </Text>
+            ) : (
+              <Text style={styles.progressText}>
+                Start adding words to track your learning progress
+              </Text>
+            )}
           </View>
         </Card.Content>
       </Card>
@@ -202,5 +252,38 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     fontSize: 12,
     alignSelf: "center",
+  },
+  progressCard: {
+    marginTop: 16,
+  },
+  progressBarContainer: {
+    marginTop: 12,
+  },
+  progressBarContainer: {
+    height: 10,
+    backgroundColor: "#e0e0e0",
+    borderRadius: 5,
+    marginVertical: 10,
+    overflow: "hidden",
+  },
+  progressBar: {
+    height: "100%",
+    backgroundColor: "#6200ee",
+    borderRadius: 5,
+  },
+  progressStats: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 10,
+  },
+  progressStat: {
+    alignItems: "center",
+    flex: 1,
+  },
+  progressText: {
+    textAlign: "center",
+    marginTop: 8,
+    fontStyle: "italic",
+    color: "#666",
   },
 });

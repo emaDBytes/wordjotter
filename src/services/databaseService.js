@@ -248,9 +248,12 @@ export const updateWordLearningStatus = async (
 export const getLearningStats = async () => {
   try {
     // Get all words
-    const words = await getSavedWords();
+    const words = (await getSavedWords()) || [];
 
     // CAlculate statistics
+    const totalWords = words.length;
+
+    // count words by learning level
     const learningLevels = [0, 0, 0, 0, 0, 0]; // 6levels (0-5)
 
     let knownWords = 0;
