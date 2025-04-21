@@ -235,3 +235,57 @@ export const updateWordLearningStatus = async (
     return false;
   }
 };
+
+/**
+ * Retrieves statistics about cocabulary learning progress
+ *
+ * @returns {Promise<Object>} Object containing learning statistics:
+ *  - totalWords: Total number of saved words
+ *  - knownWords: Number of words at learning level 3 or higher
+ *  - needPractice: Number of words at learning level 0-2
+ *  - leaningLevels: Distribution of words by learning level
+ */
+export const getLearningStats = async () => {
+  try {
+    // Get all words
+    const words = await getSavedWords();
+
+    // CAlculate statistics
+    const learningLevels = [0, 0, 0, 0, 0, 0]; // 6levels (0-5)
+
+    let knownWords = 0;
+    let needPractice = 0;
+
+    words.forEach((word) => {
+      // default to level 0 if not set
+      const level = word.learning_level !== null ? word.learning_level : 0;
+
+      // Update level counts
+      if (level >= 0 && level < learningLevels.length) {
+        learningLevels[level]++;
+      }
+
+      // count words taht are "known" (level 3+) vs need practice (0-2)
+      if (level >= 3) {
+        knownWords++;
+      } else {
+        needPractice++;
+      }
+    });
+
+    return {
+      totalWords,
+      knownWords,
+      needPractice,
+      learningLevels,
+    };
+  } catch (error) {
+    console.error("error in getting learning statustcs: ", error);
+    return {
+      totalWords: 0,
+      knownWords: 0,
+      needPractice: 0,
+      learningLevels: [0, 0, 0, 0, 0, 0],
+    };
+  }
+};
