@@ -14,7 +14,7 @@ const db = SQLite.openDatabaseSync("wordjotter.db");
 
 /**
  * Initializes the database by creating required tables if they don't ezist.
- * Creates the saved_words table with columns for word data and learnig progress.
+ * Creates the saved_words table and quick_notes table.
  */
 export const initDatabase = () => {
   db.execAsync(`
@@ -30,6 +30,15 @@ export const initDatabase = () => {
             learning_level INTEGER DEFAULT 0,
             next_review_date TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS quick_notes (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          word TEXT NOT NULL,
+          language TEXT NOT NULL,
+          notes TEXT,
+          processed INTEGER DEFAULT 0,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
     `);
 };
@@ -290,5 +299,85 @@ export const getLearningStats = async () => {
       needPractice: 0,
       learningLevels: [0, 0, 0, 0, 0, 0],
     };
+  }
+};
+
+/**
+ * Saves a quick note for later processing.
+ *
+ * @param {object} noteData - Object containing note information
+ * @param {string} noteData.word - The word text
+ * @param {string} noteData.language - Language code ('en' or 'fi')
+ * @param {string} noteData.notes - Optional context notes
+ * @returns {Promise<boolean>} - True if save operation succedds
+ */
+export const saveQuickNote = async (noteData) => {
+  const { word, language, notes = "" } = noteData;
+
+  try {
+    await db.runAsync(
+      "INSERT INTO quick_notes (word, language, notes) VALUES (?, ?, ?)",
+      [word, language, notes]
+    );
+    return true;
+  } catch (error) {
+    console.error("Error in jotting: ", error);
+    return false;
+  }
+};
+
+/**
+ * Retrieves all quick notes.
+ *
+ * @param {boolean} includeProcessed - Wethere to include processed notes
+ * @returns {Promise<Array>} Array of quick note objects
+ */
+export const getQuickNotes = async (includeProcessed = false) => {
+  try {
+    let query = "SELECT * FROM quick_notes";
+    if (!includeProcessed) {
+      query += "WHERE Processed = 0";
+    }
+    query += "ORDER BY created_at DESC";
+
+    const result = await db.getAllAsync(query);
+    return result;
+  } catch (error) {
+    console.error("Error in getting quick notes: ", error);
+    return [];
+  }
+};
+
+/**
+ * Marks a quick note as processed.
+ *
+ * @param {number} id - ID of the note to mark as processed
+ * @returns {Promise<boolean>} True if update succeeds
+ */
+export const markNoteProcessed = async (id) => {
+  try {
+    await db.runAsync("UPDATE quick_notes SET processed = 1 WHERE id = ?", [
+      id,
+    ]);
+    return true;
+  } catch (error) {
+    console.error("Error marking note as processed: ", error);
+    return false;
+  }
+};
+
+/**
+ * Deletes a quick note.
+ *
+ * @param {number} id - ID of the note to be deleted
+ * @returns {Promise<boolean>} True i fdeletion succeeds
+ */
+export const deleteQuickNote = async (id) => {
+  try {
+    await db.runAsync("DELETE FROM quick_notes WHERE id = ?", [id]);
+    return true;
+  } catch (error) {
+    console.error("Error in deleting quick note: ", error);
+    return false;
   }
 };
