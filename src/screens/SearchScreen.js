@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, View, ScrollView } from "react-native";
 import {
   Text,
@@ -15,10 +15,10 @@ import {
   fetchWordDefinition,
   openFinnishDictionary,
 } from "../services/dictionaryService";
-import { saveWord } from "../services/databaseService";
+import { markNoteProcessed, saveWord } from "../services/databaseService";
 import SpeakButton from "../components/SpeakButton";
 
-export default function SearchScreen() {
+export default function SearchScreen({ route }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [language, setLanguage] = useState("en"); // 'en' for English and 'fi' for Finnish.
   const [isLoading, setIsLoading] = useState(false);
@@ -32,6 +32,24 @@ export default function SearchScreen() {
     notes: "",
   });
   const [showFinnishInput, setShowFinnishInput] = useState(false);
+
+  // Extract parameters from navigation, if available
+  const prefilledWord = route.params?.prefilledWord || "";
+  const prefilledLanguage = route.params?.prefilledLanguage || "en";
+  const quickNoteId = route.params?.quickNoteId;
+
+  // Set initial values if perfilled
+  useEffect(() => {
+    if (prefilledWord) {
+      setSearchTerm(prefilledWord);
+      setLanguage(prefilledLanguage);
+
+      // OPtionally, trigger search automatically if word id provided
+      if (prefilledWord.trim()) {
+        searchWord();
+      }
+    }
+  }, [prefilledWord, prefilledLanguage]);
 
   const handleSaveWord = async (entry, meaningIndex, definitionIndex) => {
     const meaning = entry.meanings[meaningIndex];
@@ -47,6 +65,11 @@ export default function SearchScreen() {
     };
 
     const success = await saveWord(wordData);
+
+    // if saving was successful and we have a quickNoteId, mark it as processed
+    if (success && quickNoteId) {
+      await markNoteProcessed(quickNoteId);
+    }
 
     if (success) {
       setSnackbarMessage(`"${entry.word}" is now safe and sound!`);
@@ -75,6 +98,11 @@ export default function SearchScreen() {
     };
 
     const success = await saveWord(wordData);
+
+    // if saving was successful and we have a quickNoteId, mark it as processed
+    if (success && quickNoteId) {
+      await markNoteProcessed(quickNoteId);
+    }
 
     if (success) {
       setSnackbarMessage(`"${finnishWordInput.word}" is now safe and sound!`);
