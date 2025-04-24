@@ -32,7 +32,7 @@
         {
           "icon": "./src/assets/icons/notification-icon.png",
           "color": "#ffffff",
-          "sounds": []
+          "sounds": ["./src/assets/sounds/reminder.wav"]
         }
       ]
     ]

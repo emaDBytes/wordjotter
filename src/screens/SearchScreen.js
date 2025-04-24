@@ -326,9 +326,10 @@ export default function SearchScreen({ route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
+    alignItems: "stretch",
     justifyContent: "center",
     padding: 20,
+    width: "100%",
   },
   title: {
     textAlign: "center",
@@ -411,6 +412,8 @@ const styles = StyleSheet.create({
   finnishInputCard: {
     width: "100%",
     marginBottom: 20,
+    marginHorizontal: 0,
+    alignSelf: "stretch",
   },
   finnishInput: {
     marginBottom: 10,

@@ -61,6 +61,7 @@ export const scheduleDailyReminder = async (hour, minute, title, body) => {
         title: title || "Time to learn some words!",
         body: body || "Review your vocabulary to improve retention.",
         data: { type: "daily_reminder" },
+        sound: "reminder.wav",
       },
       trigger: scheduledTime,
     });
