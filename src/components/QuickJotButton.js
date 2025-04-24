@@ -12,7 +12,7 @@ import { FAB } from "react-native-paper";
 const QuickJotButton = ({ onPress }) => {
   return (
     <FAB
-      style={StyleSheet.fab}
+      style={styles.fab}
       icon="pencil-plus"
       onPress={onPress}
       color="#ffffff"
