@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
+import { Snackbar } from "react-native-paper";
 
 // Import Scrwwns
 import HomeScreen from "../screens/HomeScreen";
@@ -10,9 +11,34 @@ import MyWordsScreen from "../screens/MyWordsScreen";
 import FlashcardScreen from "../screens/FlashcardScreen";
 import ReminderScreen from "../screens/ReminderScreen";
 
+// Import Quick Jot components
+import QuickJotButton from "../components/QuickJotButton";
+import QuickJotModal from "../components/QuickJotModal";
+import { saveQuickNote } from "../services/databaseService";
+
 const Tab = createBottomTabNavigator();
 
 export default function AppNavigator() {
+  // State for managing the quick jot modal visibility
+  const [quickJotVisible, setQuickJotVisible] = useState(false);
+
+  // States for the snackbar feedbacks
+  const [snackbarVisible, setSnackbarVisible] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+
+  // Handle saving a quick note
+  const HandleSaveQuickNote = async (noteData) => {
+    const success = await saveQuickNote(noteData);
+
+    if (success) {
+      setSnackbarMessage(`"${noteData.word}" jotted for later!`);
+      setSnackbarVisible(true);
+    } else {
+      setSnackbarMessage("Failed to save note. Please try agoin.");
+      setSnackbarVisible(true);
+    }
+  };
+
   return (
     <NavigationContainer>
       <Tab.Navigator
@@ -42,6 +68,29 @@ export default function AppNavigator() {
         <Tab.Screen name="Flashcards" component={FlashcardScreen} />
         <Tab.Screen name="Settings" component={ReminderScreen} />
       </Tab.Navigator>
+
+      {/* Quick Jot Button (floating action button) */}
+      <QuickJotButton onPress={() => setQuickJotVisible(true)} />
+
+      {/* Quick jot modal for entering word details */}
+      <QuickJotModal
+        visible={quickJotVisible}
+        onDismiss={() => setQuickJotVisible(false)}
+        onSave={HandleSaveQuickNote}
+      />
+
+      {/* Feedback snackbar */}
+      <Snackbar
+        visible={snackbarVisible}
+        onDismiss={() => setSnackbarVisible(false)}
+        duration={3000}
+        action={{
+          label: "OK",
+          onPress: () => setSnackbarVisible(false),
+        }}
+      >
+        {snackbarMessage}
+      </Snackbar>
     </NavigationContainer>
   );
 }
