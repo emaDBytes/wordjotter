@@ -336,9 +336,9 @@ export const getQuickNotes = async (includeProcessed = false) => {
   try {
     let query = "SELECT * FROM quick_notes";
     if (!includeProcessed) {
-      query += "WHERE Processed = 0";
+      query += " WHERE processed = 0";
     }
-    query += "ORDER BY created_at DESC";
+    query += " ORDER BY created_at DESC";
 
     const result = await db.getAllAsync(query);
     return result;

@@ -8,7 +8,7 @@
 
 import React, { useState } from "react";
 import { StyleSheet, View, FlatList } from "react-native";
-import { useNavigation, useFocusEffect } from "react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import {
   Text,
   Card,
@@ -31,7 +31,7 @@ export default function QuickNotesScreen() {
 
   const [notes, setNotes] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [showPrecessed, setShowPrecessed] = useState(false);
+  const [showProcessed, setShowProcessed] = useState(false);
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [loading, setLoading] = useState(true);
@@ -47,7 +47,7 @@ export default function QuickNotesScreen() {
   const loadNotes = async () => {
     setLoading(true);
     try {
-      const quickNotes = await getQuickNotes(showPrecessed);
+      const quickNotes = await getQuickNotes(showProcessed);
       setNotes(quickNotes);
     } catch (error) {
       console.error("Error in loading notes: ", error);
@@ -99,11 +99,11 @@ export default function QuickNotesScreen() {
 
       <View style={styles.filterContainer}>
         <Chip
-          selected={showPrecessed}
-          onPress={() => setShowPrecessed(!showPrecessed)}
+          selected={showProcessed}
+          onPress={() => setShowProcessed(!showProcessed)}
           style={styles.filerChip}
         >
-          {showPrecessed ? "Show Unprocessed Only" : "Show All Notes"}
+          {showProcessed ? "Show Unprocessed Only" : "Show All Notes"}
         </Chip>
       </View>
 
@@ -117,7 +117,8 @@ export default function QuickNotesScreen() {
       ) : (
         <FlatList
           data={filteredNotes}
-          keyExtractor={({ item }) => (
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
             <Card style={styles.card}>
               <Card.Content>
                 <View style={styles.cardHeader}>

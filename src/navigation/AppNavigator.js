@@ -10,7 +10,7 @@ import SearchScreen from "../screens/SearchScreen";
 import MyWordsScreen from "../screens/MyWordsScreen";
 import FlashcardScreen from "../screens/FlashcardScreen";
 import ReminderScreen from "../screens/ReminderScreen";
-import QuickNoteScreen from "../screens/QuickNoteScreen";
+import QuickNotesScreen from "../screens/QuickNotesScreen";
 
 // Import Quick Jot components
 import QuickJotButton from "../components/QuickJotButton";
@@ -68,7 +68,7 @@ export default function AppNavigator() {
         <Tab.Screen name="Home" component={HomeScreen} />
         <Tab.Screen name="Search" component={SearchScreen} />
         <Tab.Screen name="My Words" component={MyWordsScreen} />
-        <Tab.Screen name="Quick Notes" component={QuickNoteScreen} />
+        <Tab.Screen name="Quick Notes" component={QuickNotesScreen} />
         <Tab.Screen name="Flashcards" component={FlashcardScreen} />
         <Tab.Screen name="Settings" component={ReminderScreen} />
       </Tab.Navigator>
