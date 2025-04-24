@@ -10,6 +10,7 @@ import SearchScreen from "../screens/SearchScreen";
 import MyWordsScreen from "../screens/MyWordsScreen";
 import FlashcardScreen from "../screens/FlashcardScreen";
 import ReminderScreen from "../screens/ReminderScreen";
+import QuickNoteScreen from "../screens/QuickNoteScreen";
 
 // Import Quick Jot components
 import QuickJotButton from "../components/QuickJotButton";
@@ -56,6 +57,8 @@ export default function AppNavigator() {
               iconName = focused ? "card" : "card-outline";
             } else if (route.name === "Settings") {
               iconName = focused ? "notifications" : "notifications-outline";
+            } else if (route.name === "Quick Notes") {
+              iconName = focused ? "pencil" : "pencil-outline";
             }
 
             return <Ionicons name={iconName} size={size} color={color} />;
@@ -65,6 +68,7 @@ export default function AppNavigator() {
         <Tab.Screen name="Home" component={HomeScreen} />
         <Tab.Screen name="Search" component={SearchScreen} />
         <Tab.Screen name="My Words" component={MyWordsScreen} />
+        <Tab.Screen name="Quick Notes" component={QuickNoteScreen} />
         <Tab.Screen name="Flashcards" component={FlashcardScreen} />
         <Tab.Screen name="Settings" component={ReminderScreen} />
       </Tab.Navigator>
