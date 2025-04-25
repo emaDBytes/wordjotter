@@ -1,9 +1,16 @@
 /**
- * QuickNoteScreen Component
+ * QuickNotesScreen Component
  *
- * Displays and manages notes that user has jotted down.
- * Allows filtering, searching, and processing notes by
- * looking them up in the dictionary or deleting them.
+ * Displays and manages the "Quick Jot" notes that users have captured during their vocabulary learning.
+ * This screen serves as the management interface for quickly captured words, allowing users to:
+ * - View all jotted words that haven't been fully processed yet
+ * - Filter and search through their quick notes
+ * - Process notes by looking them up in the dictionary
+ * - Delete notes that are no longer needed
+ * - Toggle between showing all notes or only unprocessed ones
+ *
+ * This component is part of the "Quick Jot" workflow that enables users to rapidly
+ * capture vocabulary items they encounter for later processing.
  */
 
 import React, { useState } from "react";
@@ -36,14 +43,22 @@ export default function QuickNotesScreen() {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [loading, setLoading] = useState(true);
 
-  // Load notes when screen comse into focus
+  /**
+   * Loads quick notes when the screen comes into focus
+   * Ensures the notes list stays up-to-date when returning from other screens
+   * Re-fetches notes when the showProcessed filter changes
+   */
   useFocusEffect(
     React.useCallback(() => {
       loadNotes();
     }, [showProcessed])
   );
 
-  // load notes from database
+  /**
+   * Fetches quick notes from the database based on current filter settings
+   * Updates the notes state with the retrieved data
+   * Handles loading state and potential errors during data fetching
+   */
   const loadNotes = async () => {
     setLoading(true);
     try {
@@ -51,14 +66,23 @@ export default function QuickNotesScreen() {
       setNotes(quickNotes);
     } catch (error) {
       console.error("Error in loading notes: ", error);
-      setSnackbarMessage("Couldn't load your notes. Please try agin.");
+      setSnackbarMessage("Couldn't load your notes. Please try again.");
       setSnackbarVisible(true);
     } finally {
       setLoading(false);
     }
   };
 
-  // Navigate to search screen with selected word
+  /**
+   * Navigates to the Search screen with the selected note's data
+   * Pre-fills the search form with the note's word and language
+   * Passes the note ID to allow automatic processing after lookup
+   *
+   * @param {Object} note - The quick note object to look up
+   * @param {number} note.id - Database ID of the note
+   * @param {string} note.word - The word text to search
+   * @param {string} note.language - Language code of the word ("en" or "fi")
+   */
   const handleLookup = (note) => {
     navigation.navigate("Search", {
       prefilledWord: note.word,
@@ -67,7 +91,12 @@ export default function QuickNotesScreen() {
     });
   };
 
-  // Deleting a quick note
+  /**
+   * Deletes a quick note from the database
+   * Provides user feedback via snackbar and refreshes the notes list
+   *
+   * @param {number} id - Database ID of the note to delete
+   */
   const handleDelete = async (id) => {
     try {
       const success = await deleteQuickNote(id);
@@ -90,6 +119,7 @@ export default function QuickNotesScreen() {
 
   return (
     <View style={styles.container}>
+      {/* Search input for filtering notes by word text */}
       <Searchbar
         placeholder="Search notes..."
         onChangeText={setSearchQuery}
@@ -97,6 +127,7 @@ export default function QuickNotesScreen() {
         style={styles.searchbar}
       />
 
+      {/* Filter toggle for showing all notes or only unprocessed ones */}
       <View style={styles.filterContainer}>
         <Chip
           selected={showProcessed}
@@ -107,6 +138,7 @@ export default function QuickNotesScreen() {
         </Chip>
       </View>
 
+      {/* Empty state display when no notes match the current filters */}
       {filteredNotes.length === 0 ? (
         <View style={styles.emptyState}>
           <Text style={styles.emptyStateTitle}>No quick note yet!</Text>
@@ -115,12 +147,14 @@ export default function QuickNotesScreen() {
           </Text>
         </View>
       ) : (
+        /* List of quick notes with their details and action buttons */
         <FlatList
           data={filteredNotes}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
             <Card style={styles.card}>
               <Card.Content>
+                {/* Card header with word and language indicator */}
                 <View style={styles.cardHeader}>
                   <Text variant="titleMedium">{item.word}</Text>
                   <Chip compact>
@@ -128,14 +162,17 @@ export default function QuickNotesScreen() {
                   </Chip>
                 </View>
 
+                {/* Optional notes section - only shown if notes exist */}
                 {item.notes ? (
                   <Text style={styles.notes}>{item.notes}</Text>
                 ) : null}
 
+                {/* Creation date display */}
                 <Text style={styles.date}>
                   {new Date(item.created_at).toLocaleDateString()}
                 </Text>
 
+                {/* Conditional rendering based on processed status */}
                 {item.processed ? (
                   <Chip icon="check" style={styles.processedChip}>
                     Processed
@@ -162,6 +199,7 @@ export default function QuickNotesScreen() {
         />
       )}
 
+      {/* Feedback snackbar for user actions */}
       <Searchbar
         visible={snackbarVisible}
         onDismiss={() => setSnackbarVisible(false)}
