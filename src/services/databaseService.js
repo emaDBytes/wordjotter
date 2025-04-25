@@ -13,7 +13,7 @@ import * as SQLite from "expo-sqlite";
 const db = SQLite.openDatabaseSync("wordjotter.db");
 
 /**
- * Initializes the database by creating required tables if they don't ezist.
+ * Initializes the database by creating required tables if they don't exist.
  * Creates the saved_words table and quick_notes table.
  */
 export const initDatabase = () => {
@@ -49,11 +49,11 @@ export const initDatabase = () => {
  * @param {string} wordData.word - The word text
  * @param {string} wordData.language - Language code ('en' or 'fi')
  * @param {string} wordData.definition - word definition
- * @param {string} wordData.phonetic - Phonetic pronaunciation (optiona;)
+ * @param {string} wordData.phonetic - Phonetic pronunciation (optional)
  * @param {string} wordData.example - Example usage (optional)
  * @param {string} wordData.notes - User's notes (optional)
  * @param {string} wordData.category - Word's category (defaults to 'default')
- * @returns {Promise<boolean>} - True if save operation secceeds, false otherwise
+ * @returns {Promise<boolean>} - True if save operation succeeds, false otherwise
  */
 export const saveWord = async (wordData) => {
   const {
@@ -80,9 +80,9 @@ export const saveWord = async (wordData) => {
 
 /**
  *
- * @returns REtrives all saved words from the database ordered by creation date (newest first).
+ * @returns Retrieves all saved words from the database ordered by creation date (newest first).
  *
- * @returns {Promise<Array>} Array of word objexts
+ * @returns {Promise<Array>} Array of word objects
  */
 export const getSavedWords = async () => {
   try {
@@ -113,7 +113,7 @@ export const deleteWord = async (id) => {
 };
 
 /**
- * Retrieves words filtered by their catefory.
+ * Retrieves words filtered by their category.
  *
  * @param {string} category - Category to be used to filter
  * @returns {Promise<Array>} Array of word objects matching the category
@@ -163,7 +163,7 @@ export const saveReminderSetting = async (settings) => {
     );
     return true;
   } catch (error) {
-    console.error("Error in saving reninder settings: ", error);
+    console.error("Error in saving reminder settings: ", error);
     return false;
   }
 };
@@ -174,7 +174,7 @@ export const saveReminderSetting = async (settings) => {
  * Creates the reminder_settings table if it does not exist.
  *
  * @returns {Promise<Object>} Object containing reminder settings
- * @returns {boolean} settings.enabled - whther reminders are enabled
+ * @returns {boolean} settings.enabled - whether reminders are enabled
  * @returns {number} settings.hour - Hour of day for reminder (0-23)
  * @returns {number} settings.minute - MInute of hour for reminder (0-59)
  */
@@ -226,7 +226,7 @@ export const getReminderSettings = async () => {
  * @param {number} wordId - ID of the word to update
  * @param {number} learningLevel - New learning level (0-5)
  * @param {string} nextReviewDate - ISO string fate for next review
- * @returns {Promise<boolean>} True if update succeeds, fales otherwise
+ * @returns {Promise<boolean>} True if update succeeds, false otherwise
  */
 export const updateWordLearningStatus = async (
   wordId,
@@ -240,13 +240,13 @@ export const updateWordLearningStatus = async (
     );
     return true;
   } catch (error) {
-    console.error("error in updating word learning stastus: ", error);
+    console.error("Error in updating word learning status: ", error);
     return false;
   }
 };
 
 /**
- * Retrieves statistics about cocabulary learning progress
+ * Retrieves statistics about vocabulary learning progress
  *
  * @returns {Promise<Object>} Object containing learning statistics:
  *  - totalWords: Total number of saved words
@@ -277,7 +277,7 @@ export const getLearningStats = async () => {
         learningLevels[level]++;
       }
 
-      // count words taht are "known" (level 3+) vs need practice (0-2)
+      // Count words that are "known" (level 3+) vs need practice (0-2)
       if (level >= 3) {
         knownWords++;
       } else {
@@ -292,7 +292,7 @@ export const getLearningStats = async () => {
       learningLevels,
     };
   } catch (error) {
-    console.error("error in getting learning statustcs: ", error);
+    console.error("Error in getting learning statistics: ", error);
     return {
       totalWords: 0,
       knownWords: 0,
@@ -309,7 +309,7 @@ export const getLearningStats = async () => {
  * @param {string} noteData.word - The word text
  * @param {string} noteData.language - Language code ('en' or 'fi')
  * @param {string} noteData.notes - Optional context notes
- * @returns {Promise<boolean>} - True if save operation succedds
+ * @returns {Promise<boolean>} - True if save operation succeeds
  */
 export const saveQuickNote = async (noteData) => {
   const { word, language, notes = "" } = noteData;
@@ -329,7 +329,7 @@ export const saveQuickNote = async (noteData) => {
 /**
  * Retrieves all quick notes.
  *
- * @param {boolean} includeProcessed - Wethere to include processed notes
+ * @param {boolean} includeProcessed - Whether to include processed notes
  * @returns {Promise<Array>} Array of quick note objects
  */
 export const getQuickNotes = async (includeProcessed = false) => {
@@ -370,7 +370,7 @@ export const markNoteProcessed = async (id) => {
  * Deletes a quick note.
  *
  * @param {number} id - ID of the note to be deleted
- * @returns {Promise<boolean>} True i fdeletion succeeds
+ * @returns {Promise<boolean>} True if deletion succeeds
  */
 export const deleteQuickNote = async (id) => {
   try {
