@@ -24,7 +24,7 @@ export const fetchWordDefinition = async (word, language = "en") => {
   try {
     if (language === "en") {
       const response = await fetch(
-        `https://api.dictionaryapi.dev/api/v2/entries/${language}/${word}`
+        `${process.env.EXPO_PUBLIC_API_URL}/${language}/${word}`
       );
 
       if (!response.ok) {
@@ -58,9 +58,9 @@ export const fetchWordDefinition = async (word, language = "en") => {
 export const openFinnishDictionary = async (word) => {
   try {
     // Use REdFox dictionary for Finnish lookup
-    const url = `https://redfoxsanakirja.fi/fi/sanakirja/-/s/fin/eng/${encodeURIComponent(
-      word
-    )}`;
+    const url = `${
+      process.env.EXPO_PUBLIC_FINNISH_DICTIONARY_URL
+    }/${encodeURIComponent(word)}`;
     const result = await WebBrowser.openBrowserAsync(url);
     return result;
   } catch (error) {
