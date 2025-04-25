@@ -1,3 +1,11 @@
+/**
+ * FlashcardScreen Component
+ *
+ * Implements interactive flashcard functionality for vocabulary learning using
+ * a spaced repetition algorithm. User can flip cards to see word definitions,
+ * navigate between cards, and mark words as known or needing practice.
+ */
+
 import React, { useState, useEffect } from "react";
 import { StyleSheet, View, Animated, TouchableOpacity } from "react-native";
 import { Text, Button, Snackbar } from "react-native-paper";
@@ -8,6 +16,12 @@ import {
   updateWordAfterReview,
 } from "../services/learningService";
 
+/**
+ * FlashcardScreen displays interactive flashcards for vocabulary learning
+ * with spaced repetition support
+ *
+ * @returns {React.Component} Flashcard learning interface
+ */
 export default function FlashcardScreen() {
   const [cards, setCards] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -16,10 +30,14 @@ export default function FlashcardScreen() {
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
+  // Load cards for review when component mounts
   useEffect(() => {
     loadCards();
   }, []);
 
+  /**
+   * Loads words due for review and shuffles them for practice
+   */
   const loadCards = async () => {
     try {
       const words = await getWordsForReview();
@@ -43,11 +61,14 @@ export default function FlashcardScreen() {
         setCards([]);
       }
     } catch (error) {
-      console.error("Error loasing cards: ", error);
+      console.error("Error loading cards: ", error);
       setCards([]);
     }
   };
 
+  /**
+   * Handles card flip animation
+   */
   const flipCard = () => {
     setIsFlipped(!isFlipped);
     Animated.timing(flipAnim, {
@@ -57,6 +78,9 @@ export default function FlashcardScreen() {
     }).start();
   };
 
+  /**
+   * Navigates to the next card in the deck
+   */
   const nextCard = () => {
     if (currentIndex < cards.length - 1) {
       // Make sure card is faced down before moving to next
@@ -71,9 +95,12 @@ export default function FlashcardScreen() {
     }
   };
 
+  /**
+   * Navigates to the previous card in the deck
+   */
   const prevCard = () => {
     if (currentIndex > 0) {
-      // make sure card os face down before moving to previous
+      // Make sure card os face down before moving to previous
       if (isFlipped) {
         flipCard();
       }
@@ -108,6 +135,7 @@ export default function FlashcardScreen() {
     ],
   };
 
+  // Empty state when no cards are available
   if (cards.length === 0) {
     return (
       <View style={styles.container}>
@@ -122,6 +150,7 @@ export default function FlashcardScreen() {
     );
   }
 
+  // Safety check for invalid index
   if (currentIndex >= cards.length || !cards[currentIndex]) {
     // Reset to the first card if the current index is invalid
     return (
@@ -133,6 +162,10 @@ export default function FlashcardScreen() {
 
   const currentCard = cards[currentIndex];
 
+  /**
+   * Updates word's learning progress when marked as known
+   * Advances to next learning level and updates next review date
+   */
   const handleKnownWord = async () => {
     try {
       if (cards.length > 0 && currentIndex < cards.length) {
@@ -151,6 +184,10 @@ export default function FlashcardScreen() {
     }
   };
 
+  /**
+   * Updates word's learning progress when marked as needing practice
+   * Resets to initial learning level for reinforced practice
+   */
   const handleNeedsPractice = async () => {
     try {
       if (cards.length > 0 && currentIndex < cards.length) {
@@ -171,6 +208,12 @@ export default function FlashcardScreen() {
     }
   };
 
+  /**
+   * Formats the next review date into a user-friendly string
+   *
+   * @param {string} dateString - ISO date string from database
+   * @returns {string} Human-readable date representation
+   */
   const formatNextReviewDate = (dateString) => {
     try {
       if (!dateString) {
@@ -180,7 +223,7 @@ export default function FlashcardScreen() {
       const date = new Date(dateString);
       const today = new Date();
 
-      // check if next review is today
+      // Check if next review is today
       if (date.toDateString() === today.toDateString()) {
         return "Today";
       }
@@ -199,7 +242,12 @@ export default function FlashcardScreen() {
     }
   };
 
-  // Add a helper to show the learnitn level in a readable form
+  /**
+   * Converts numerical learning level to descriptive text
+   *
+   * @param {number} level - Learning level (0-5)
+   * @returns {string} Human-readable description of learning level
+   */
   const getLearningLevelText = (level) => {
     try {
       if (level === undefined || level === null) {
@@ -224,6 +272,7 @@ export default function FlashcardScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.flashcardContainer}>
+        {/* Front side of flashcard */}
         <Animated.View
           style={[
             styles.card,
@@ -259,6 +308,7 @@ export default function FlashcardScreen() {
           </TouchableOpacity>
         </Animated.View>
 
+        {/* Back side of flashcard */}
         <Animated.View
           style={[
             styles.card,
@@ -277,6 +327,7 @@ export default function FlashcardScreen() {
         </Animated.View>
       </View>
 
+      {/* Navigation controls */}
       <View style={styles.controls}>
         <Button
           mode="outlined"
@@ -299,6 +350,7 @@ export default function FlashcardScreen() {
         </Button>
       </View>
 
+      {/* Learning progress controls */}
       <View style={styles.reviewControls}>
         <Button
           mode="contained"
@@ -322,6 +374,7 @@ export default function FlashcardScreen() {
         Shuffle Cards
       </Button>
 
+      {/* Feedback snackbar */}
       <Snackbar
         visible={snackbarVisible}
         onDismiss={() => setSnackbarVisible(false)}
