@@ -1,3 +1,17 @@
+/**
+ * ReminderScreen Component
+ *
+ * Manages study reminder settings for the vocabulary learning application.
+ * This screen allows users to:
+ * - Enable/disable daily study reminders
+ * - Set the specific time for daily notifications
+ * - View permission status and manage notification permissions
+ *
+ * The screen integrates with the expo-notifications system and persists
+ * user preferences in the local database for consistent experience across
+ * app sessions.
+ */
+
 import React, { useState, useEffect } from "react";
 import { StyleSheet, View, Platform, Alert } from "react-native";
 import { Text, Switch, Button, Card, Snackbar } from "react-native-paper";
@@ -24,7 +38,10 @@ export default function ReminderScreen() {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [hasPermission, setHasPermission] = useState(false);
 
-  // Load saved settings and check permissions on component mount
+  /**
+   * Initialize component by checking notification permissions
+   * and loading saved reminder settings from the database
+   */
   useEffect(() => {
     const checkPermissionsAndLoad = async () => {
       // check if we have notification permissions
@@ -39,6 +56,11 @@ export default function ReminderScreen() {
     checkPermissionsAndLoad();
   }, []);
 
+  /**
+   * Loads reminder settings from the database and updates state
+   * Sets the time state based on saved hour and minute values
+   * Only enables reminders if both permission is granted and setting is enabled
+   */
   const loadSettings = async () => {
     try {
       const settings = await getReminderSettings();
@@ -58,6 +80,13 @@ export default function ReminderScreen() {
     }
   };
 
+  /**
+   * Handles the reminder toggle switch state change
+   * Requests permission if enabling reminders
+   * Updates saved settings and schedules/cancels reminders accordingly
+   *
+   * @param {boolean} value - New toggle state (true = enabled, false = disabled)
+   */
   const toggleSwitch = async (value) => {
     if (value) {
       // only proceed if trying to enable
@@ -73,11 +102,18 @@ export default function ReminderScreen() {
       }
     }
 
-    // update state and save settings
+    // Update state and save settings
     setEnabled(value);
     await saveSettings(value, time);
   };
 
+  /**
+   * Handles time picker value changes
+   * Updates selected time and saves new settings
+   *
+   * @param {Object} event - The change event
+   * @param {Date/undefined} selectedTime - The new selected time (undefined if canceled)
+   */
   const onTimeChange = (event, selectTime) => {
     setShowTimePicker(false);
 
@@ -87,6 +123,13 @@ export default function ReminderScreen() {
     }
   };
 
+  /**
+   * Saves reminder settings to database and schedules/cancels notifications
+   * Shows feedback to user via snackbar
+   *
+   * @param {boolean} isEnabled - Whether reminders are enabled
+   * @param {Date} selectedTime - The selected time for reminders
+   */
   const saveSettings = async (isEnabled, selectTime) => {
     const hour = selectTime.getHours();
     const minute = selectTime.getMinutes();
@@ -98,7 +141,7 @@ export default function ReminderScreen() {
       minute,
     });
 
-    // Scheduke or cancel notifications
+    // Schedule or cancel notifications
     if (isEnabled && hasPermission) {
       await scheduleDailyReminder(
         hour,
@@ -108,7 +151,7 @@ export default function ReminderScreen() {
       );
 
       setSnackbarMessage(
-        `Daily remindr set for ${hour}:${minute < 10 ? "0" + minute : minute}`
+        `Daily reminder set for ${hour}:${minute < 10 ? "0" + minute : minute}`
       );
     } else if (!isEnabled) {
       await cancelAllReminders();
@@ -118,7 +161,10 @@ export default function ReminderScreen() {
     setSnackbarVisible(true);
   };
 
-  // debugging function
+  /**
+   * Development-only function for debugging notification permissions
+   * Displays the current permission status in an alert
+   */
   const debugPermissions = async () => {
     const currentPermission = await checkNotificationPermissions();
     console.log("Current permission status: ", currentPermission);
@@ -128,6 +174,10 @@ export default function ReminderScreen() {
     );
   };
 
+  /**
+   * Development-only function for checking scheduled notifications
+   * Shows count of scheduled notifications in an alert
+   */
   const checkScheduledNotifications = async () => {
     const scheduledNotifications = await getScheduledReminders();
     console.log("Scheduled notifications: ", scheduledNotifications);
@@ -139,14 +189,17 @@ export default function ReminderScreen() {
 
   return (
     <View style={styles.container}>
+      {/* Main settings card */}
       <Card style={styles.card}>
         <Card.Title title="Study Reminders" />
         <Card.Content>
+          {/* Main settings card */}
           <View style={styles.switchContainer}>
             <Text>Enable daily reminders</Text>
             <Switch value={enabled} onValueChange={toggleSwitch} />
           </View>
 
+          {/* Time picker section - only shown when reminders are enabled */}
           {enabled && (
             <View style={styles.timeContainer}>
               <Text>Reminder time:</Text>
@@ -169,6 +222,7 @@ export default function ReminderScreen() {
             </View>
           )}
 
+          {/* Educational information about reminders */}
           <Text style={styles.infoText}>
             Daily reminders help build a consistent Study habit and improve your
             vocabulary retention,
@@ -176,7 +230,7 @@ export default function ReminderScreen() {
         </Card.Content>
       </Card>
 
-      {/* debugging in development */}
+      {/* Development-only debugging tools - only visible in development mode */}
       {__DEV__ && (
         <View style={styles.debugButtons}>
           <Button
@@ -196,6 +250,7 @@ export default function ReminderScreen() {
         </View>
       )}
 
+      {/* Feedback snackbar for user actions */}
       <Snackbar
         visible={snackbarVisible}
         onDismiss={() => setSnackbarVisible(false)}
