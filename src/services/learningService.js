@@ -3,7 +3,7 @@ import { getSavedWords, updateWordLearningStatus } from "./databaseService";
 // Spaced repetition intervals in days
 const INTERVALS = [1, 3, 7, 14, 30, 90];
 
-// Get words that should be reviewed today based on their learning stastus
+// Get words that should be reviewed today based on their learning status
 export const getWordsForReview = async () => {
   try {
     const words = await getSavedWords();
@@ -27,7 +27,7 @@ export const getWordsForReview = async () => {
 
 export const updateWordAfterReview = async (wordId, isCorrect) => {
   try {
-    // Get the curent word to check its learning level
+    // Get the current word to check its learning level
     const words = await getSavedWords();
     const word = words.find((w) => w.id === wordId);
 
@@ -43,7 +43,7 @@ export const updateWordAfterReview = async (wordId, isCorrect) => {
       // move to next level if correct (max at INTERVALS.length - 1)
       learningLevel = Math.min(learningLevel + 1, INTERVALS.length - 1);
     } else {
-      // move bacj to first level if incorrect
+      // Move back to first level if incorrect
       learningLevel = 0;
     }
 
@@ -60,7 +60,7 @@ export const updateWordAfterReview = async (wordId, isCorrect) => {
 
     return success;
   } catch (error) {
-    console.error("Error in updating word learning stastus: ", error);
+    console.error("Error in updating word learning status: ", error);
     return false;
   }
 };
