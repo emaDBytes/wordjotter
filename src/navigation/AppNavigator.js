@@ -1,10 +1,18 @@
+/**
+ * App Navigation Component
+ *
+ * Handles the primary navigation structure of the application using React Navigation.
+ * Includes bottom tab navigation between main screens and provides the global
+ * Quick Jot functionality through a floating action button present across app.
+ */
+
 import React, { useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
 import { Snackbar } from "react-native-paper";
 
-// Import Scrwwns
+// Import Screens
 import HomeScreen from "../screens/HomeScreen";
 import SearchScreen from "../screens/SearchScreen";
 import MyWordsScreen from "../screens/MyWordsScreen";
@@ -19,6 +27,11 @@ import { saveQuickNote } from "../services/databaseService";
 
 const Tab = createBottomTabNavigator();
 
+/**
+ * AppNavigator component provides the main navigation structure and global UI elements
+ *
+ * @returns {React.Component} The main navigation container with all screen and global UI
+ */
 export default function AppNavigator() {
   // State for managing the quick jot modal visibility
   const [quickJotVisible, setQuickJotVisible] = useState(false);
@@ -27,7 +40,14 @@ export default function AppNavigator() {
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
-  // Handle saving a quick note
+  /**
+   * Handles saving a quick note to the database and displays feedback
+   *
+   * @param {} noteData - Data for the notes to be saved
+   * @param {string} noteData.word - The word to save
+   * @param {string} noteData.language - Language code ("en" or "fi")
+   * @param {string} noteData.notes - Optional context notes
+   */
   const HandleSaveQuickNote = async (noteData) => {
     const success = await saveQuickNote(noteData);
 
@@ -35,7 +55,7 @@ export default function AppNavigator() {
       setSnackbarMessage(`"${noteData.word}" jotted for later!`);
       setSnackbarVisible(true);
     } else {
-      setSnackbarMessage("Failed to save note. Please try agoin.");
+      setSnackbarMessage("Failed to save note. Please try again.");
       setSnackbarVisible(true);
     }
   };
@@ -73,17 +93,17 @@ export default function AppNavigator() {
         <Tab.Screen name="Settings" component={ReminderScreen} />
       </Tab.Navigator>
 
-      {/* Quick Jot Button (floating action button) */}
+      {/* Global Quick Jot functionality - available across the app */}
       <QuickJotButton onPress={() => setQuickJotVisible(true)} />
 
-      {/* Quick jot modal for entering word details */}
+      {/* Modal dialog for entering quick notes */}
       <QuickJotModal
         visible={quickJotVisible}
         onDismiss={() => setQuickJotVisible(false)}
         onSave={HandleSaveQuickNote}
       />
 
-      {/* Feedback snackbar */}
+      {/* Feedback snackbar for user actions */}
       <Snackbar
         visible={snackbarVisible}
         onDismiss={() => setSnackbarVisible(false)}
