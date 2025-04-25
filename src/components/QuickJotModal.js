@@ -74,7 +74,7 @@ const QuickJotModal = ({ visible, onDismiss, onSave }) => {
             onPress={() => setLanguage("fi")}
             style={styles.chip}
           >
-            Finniish
+            Finnish
           </Chip>
         </View>
 

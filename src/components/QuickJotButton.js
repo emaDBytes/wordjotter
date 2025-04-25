@@ -25,7 +25,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     margin: 16,
     right: 0,
-    bottom: 75,
+    bottom: 75, // Positioned above tab bar to prevent overlap with navigation buttons
     backgroundColor: "#6200ee",
   },
 });
