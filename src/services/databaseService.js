@@ -44,16 +44,17 @@ export const initDatabase = () => {
 };
 
 /**
- * Saves a word and its associated data to hte database.
+ * Saves a word and its associated data to the database.
+ *
  * @param {object} wordData - Object containing word information
- * @param {string} wordData.word - The word text
- * @param {string} wordData.language - Language code ('en' or 'fi')
- * @param {string} wordData.definition - word definition
- * @param {string} wordData.phonetic - Phonetic pronunciation (optional)
- * @param {string} wordData.example - Example usage (optional)
- * @param {string} wordData.notes - User's notes (optional)
- * @param {string} wordData.category - Word's category (defaults to 'default')
- * @returns {Promise<boolean>} - True if save operation succeeds, false otherwise
+ * @param {string} wordData.word - The word text to be saved
+ * @param {string} wordData.language - Language code ('en' for English, 'fi' for Finnish)
+ * @param {string} wordData.definition - The primary meaning or explanation of the word
+ * @param {string} wordData.phonetic - Phonetic pronunciation guide (optional)
+ * @param {string} wordData.example - Example sentence showing word usage (optional)
+ * @param {string} wordData.notes - User's personal notes about the word (optional)
+ * @param {string} wordData.category - Category for organizing words (defaults to 'default')
+ * @returns {Promise<boolean>} True if save operation succeeds, false otherwise
  */
 export const saveWord = async (wordData) => {
   const {
@@ -80,7 +81,7 @@ export const saveWord = async (wordData) => {
 
 /**
  *
- * @returns Retrieves all saved words from the database ordered by creation date (newest first).
+ * Retrieves all saved words from the database ordered by creation date (newest first).
  *
  * @returns {Promise<Array>} Array of word objects
  */
@@ -100,7 +101,7 @@ export const getSavedWords = async () => {
  * Deletes a word from the database by its ID.
  *
  * @param {number} id - ID of the word to be deleted
- * @returns {Promise<boolean>} true if deletion succeeds, false otherwise
+ * @returns {Promise<boolean>} True if deletion succeeds, false otherwise
  */
 export const deleteWord = async (id) => {
   try {
