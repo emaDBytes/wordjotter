@@ -1,7 +1,7 @@
 /**
  * Dictionary Service
  *
- * Handles dictionary lookups for multilingual word definitins.
+ * Handles dictionary lookups for multilingual word definitions.
  * Supports both direct API integration for English and external
  * browser-based dictionary access for Finnish
  *
@@ -53,11 +53,11 @@ export const fetchWordDefinition = async (word, language = "en") => {
  *
  * @param {string} word - The Finnish word to look up
  * @returns {Promise<Object>} - Result object from WebBrowser.openBrowserAsync
- * @throws {} - If browser cannot be openned or URL is invalid
+ * @throws {} - If browser cannot be opened or URL is invalid
  */
 export const openFinnishDictionary = async (word) => {
   try {
-    // Use REdFox dectionary for Finnish lookup
+    // Use REdFox dictionary for Finnish lookup
     const url = `https://redfoxsanakirja.fi/fi/sanakirja/-/s/fin/eng/${encodeURIComponent(
       word
     )}`;
