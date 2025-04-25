@@ -1,3 +1,19 @@
+/**
+ * SearchScreen Component
+ *
+ * Provides a comprehensive dictionary search interface for both English and Finnish words.
+ * This screen serves as the main vocabulary lookup tool, enabling users to:
+ * - Search for words in both English and Finnish languages
+ * - View detailed definitions, examples, and pronunciations
+ * - Save words to their personal vocabulary collection
+ * - Process words that were previously captured using Quick Jot feature
+ *
+ * The component adapts its behavior based on the selected language:
+ * - English words are looked up directly using the Free Dictionary API
+ * - Finnish words open an external browser with RedFox Dictionary, then allow
+ *   manual entry of definitions after lookup
+ */
+
 import React, { useEffect, useState } from "react";
 import { StyleSheet, View, ScrollView } from "react-native";
 import {
@@ -38,19 +54,32 @@ export default function SearchScreen({ route }) {
   const prefilledLanguage = route.params?.prefilledLanguage || "en";
   const quickNoteId = route.params?.quickNoteId;
 
-  // Set initial values if perfilled
+  /**
+   * Handles initial setup when screen receives navigation parameters
+   * Sets up search form with prefilled values from navigation params
+   * Automatically triggers search when navigating from QuickNotesScreen
+   */
   useEffect(() => {
     if (prefilledWord) {
       setSearchTerm(prefilledWord);
       setLanguage(prefilledLanguage);
 
-      // OPtionally, trigger search automatically if word id provided
+      // Automatically trigger search if word is provided
       if (prefilledWord.trim()) {
         searchWord();
       }
     }
   }, [prefilledWord, prefilledLanguage]);
 
+  /**
+   * Saves an English word definition to the personal vocabulary database
+   * Updates quick note processing status if applicable
+   * Provides user feedback via snackbar
+   *
+   * @param {Object} entry - The full word entry from API results
+   * @param {number} meaningIndex - Index of the selected meaning in entry.meanings array
+   * @param {number} definitionIndex - Index of the selected definition in meaning.definitions array
+   */
   const handleSaveWord = async (entry, meaningIndex, definitionIndex) => {
     const meaning = entry.meanings[meaningIndex];
     const definition = meaning.definitions[definitionIndex];
@@ -66,7 +95,7 @@ export default function SearchScreen({ route }) {
 
     const success = await saveWord(wordData);
 
-    // if saving was successful and we have a quickNoteId, mark it as processed
+    // If saving was successful and we have a quickNoteId, mark it as processed
     if (success && quickNoteId) {
       await markNoteProcessed(quickNoteId);
     }
@@ -80,6 +109,11 @@ export default function SearchScreen({ route }) {
     setSnackbarVisible(true);
   };
 
+  /**
+   * Saves a Finnish word with user-provided definition to the vocabulary database
+   * Updates quick note processing status if applicable
+   * Validates input and provides user feedback
+   */
   const handleSaveFinnishWord = async () => {
     if (!finnishWordInput.word.trim()) {
       setSnackbarMessage("Enter a word!");
@@ -99,7 +133,7 @@ export default function SearchScreen({ route }) {
 
     const success = await saveWord(wordData);
 
-    // if saving was successful and we have a quickNoteId, mark it as processed
+    // If saving was successful and we have a quickNoteId, mark it as processed
     if (success && quickNoteId) {
       await markNoteProcessed(quickNoteId);
     }
@@ -120,6 +154,11 @@ export default function SearchScreen({ route }) {
     setSnackbarVisible(true);
   };
 
+  /**
+   * Performs dictionary lookup based on the selected language
+   * Handles both direct API lookup (English) and external browser lookup (Finnish)
+   * Manages loading states and error handling
+   */
   const searchWord = async () => {
     if (!searchTerm.trim()) return;
 
@@ -131,7 +170,7 @@ export default function SearchScreen({ route }) {
     try {
       const data = await fetchWordDefinition(searchTerm.trim(), language);
 
-      // Checl if there;s a flag for external lookup
+      // Check if there's a flag for external lookup
       if (data.type === "external" && data.language === "fi") {
         // Open Finnish dictionary in browser
         await openFinnishDictionary(searchTerm.trim());
@@ -160,6 +199,7 @@ export default function SearchScreen({ route }) {
         Search Words
       </Text>
 
+      {/* Language selection toggle */}
       <View style={styles.languageSelector}>
         <Chip
           selected={language === "en"}
@@ -177,6 +217,7 @@ export default function SearchScreen({ route }) {
         </Chip>
       </View>
 
+      {/* Search input field with button */}
       <View style={styles.searchContainer}>
         <TextInput
           label="Enter a word"
@@ -197,6 +238,7 @@ export default function SearchScreen({ route }) {
         </Button>
       </View>
 
+      {/* Loading indicator */}
       {isLoading && (
         <ActivityIndicator
           animating={true}
@@ -205,6 +247,7 @@ export default function SearchScreen({ route }) {
         />
       )}
 
+      {/* Error message display */}
       {error && (
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>{error}</Text>
@@ -256,10 +299,12 @@ export default function SearchScreen({ route }) {
         </Card>
       )}
 
+      {/* Dictionary results display - English words */}
       {results && (
         <ScrollView style={styles.resultsContainer}>
           {results.map((entry, index) => (
             <View key={index} style={styles.resultsCard}>
+              {/* Word header with pronunciation button */}
               <View style={{ flexDirection: "row", alignItems: "center" }}>
                 <Text variant="headlineSmall" style={styles.word}>
                   {entry.word}
@@ -270,12 +315,14 @@ export default function SearchScreen({ route }) {
                 {entry.phonetic}
               </Text>
 
+              {/* Word meanings section with part of speech grouping */}
               {entry.meanings.map((meaning, mIndex) => (
                 <View key={mIndex} style={styles.meaningContainer}>
                   <Text variant="titleMedium" style={styles.partOfSpeech}>
                     {meaning.partOfSpeech}
                   </Text>
 
+                  {/* Individual definitions with examples and save buttons */}
                   {meaning.definitions.map((def, dIndex) => (
                     <View key={dIndex} style={styles.definitionContainer}>
                       <Text variant="bodyMedium">
@@ -308,6 +355,7 @@ export default function SearchScreen({ route }) {
         </ScrollView>
       )}
 
+      {/* Feedback snackbar for user actions */}
       <Snackbar
         visible={snackbarVisible}
         onDismiss={() => setSnackbarVisible(false)}
