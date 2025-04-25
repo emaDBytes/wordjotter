@@ -1,10 +1,25 @@
+/**
+ * HomeScreen Component
+ *
+ * The main dashboard of the application that displays vocabulary statistics,
+ * learning progress, recently saved words, and educational tips. Serves as
+ * the central hub for users to monitor their learning progress and access
+ * primary app functions.
+ */
+
 import React, { useEffect, useState } from "react";
-import { StyleSheet, View, ScrollView, Image } from "react-native";
+import { StyleSheet, View, ScrollView } from "react-native";
 import { Text, Card, Button, List, Divider } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 
 import { getSavedWords, getLearningStats } from "../services/databaseService";
 
+/**
+ * HomeScreen displays vocabulary statistics, learning progress, and access
+ * to key app features
+ *
+ * @returns {React.Component} Dashboard interface with statistics and navigation options
+ */
 export default function HomeScreen() {
   const navigation = useNavigation();
   const [recentWords, setRecentWords] = useState([]);
@@ -14,10 +29,17 @@ export default function HomeScreen() {
     finnish: 0,
   });
 
+  /**
+   * Load user data on component mount
+   */
   useEffect(() => {
     loadData();
   }, []);
 
+  /**
+   * Fetches saved words and learning statistics from the database
+   * and updates component state
+   */
   const loadData = async () => {
     try {
       const words = await getSavedWords();
@@ -25,11 +47,11 @@ export default function HomeScreen() {
       // Get 5 most recent words
       setRecentWords(words.slice(0, 5));
 
-      // Get learning statistics
+      // Get learning statistics for progress display
       const learningStats = await getLearningStats();
       console.log("Learning stats: ", learningStats);
 
-      // Calculate what we have
+      // Update statistics state with calculated values
       setStats({
         total: words.length,
         english: words.filter((word) => word.language === "en").length,
@@ -45,6 +67,7 @@ export default function HomeScreen() {
 
   return (
     <ScrollView style={styles.container}>
+      {/* Header Section */}
       <View style={styles.header}>
         <Text variant="headlineMedium" style={styles.title}>
           WordJotter
@@ -54,6 +77,7 @@ export default function HomeScreen() {
         </Text>
       </View>
 
+      {/* Language Statistics Card */}
       <Card style={styles.statsCard}>
         <Card.Content>
           <Text variant="titleMedium">You Progress</Text>
@@ -70,6 +94,7 @@ export default function HomeScreen() {
         </Card.Content>
       </Card>
 
+      {/* Learning Progress Card */}
       <Card style={styles.progressCard}>
         <Card.Content>
           <Text variant="titleMedium">Learning Progress</Text>
@@ -109,6 +134,7 @@ export default function HomeScreen() {
         </Card.Content>
       </Card>
 
+      {/* Quick Actions Section */}
       <View style={styles.actionsContainer}>
         <Button
           mode="contained"
@@ -128,6 +154,7 @@ export default function HomeScreen() {
         </Button>
       </View>
 
+      {/* Recently Added Words Card */}
       <Card style={styles.recentCard}>
         <Card.Content>
           <Text variant="titleMedium">Freshly Snagged Words</Text>
@@ -163,6 +190,7 @@ export default function HomeScreen() {
         )}
       </Card>
 
+      {/* Learning Tips Card */}
       <Card style={styles.tipsCard}>
         <Card.Content>
           <Text variant="titleMedium">Tricks to Master Words</Text>
