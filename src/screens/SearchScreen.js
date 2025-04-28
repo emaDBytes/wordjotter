@@ -15,7 +15,15 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { StyleSheet, View, ScrollView } from "react-native";
+import {
+  StyleSheet,
+  View,
+  ScrollView,
+  Keyboard,
+  KeyboardAvoidingView,
+  TouchableWithoutFeedback,
+  Platform,
+} from "react-native";
 import {
   Text,
   TextInput,
@@ -259,47 +267,65 @@ export default function SearchScreen({ route }) {
 
       {/* Finnish word's input form */}
       {showFinnishInput && (
-        <Card style={styles.finnishInoutCard}>
-          <Card.Title
-            title="Add Finnish Word"
-            subtitle="Enter details after looking it up"
-          />
-          <Card.Content>
-            <TextInput
-              label="Word"
-              value={finnishWordInput.word}
-              onChangeText={(text) =>
-                setFinnishWordInput({ ...finnishWordInput, word: text })
-              }
-              style={styles.finnishInput}
-            />
-            <TextInput
-              label="Definition/Meaning"
-              value={finnishWordInput.definition}
-              onChangeText={(text) =>
-                setFinnishWordInput({ ...finnishWordInput, definition: text })
-              }
-              style={styles.finnishInput}
-              multiline
-            />
-            <TextInput
-              label="Notes (optional)"
-              value={finnishWordInput.notes}
-              onChangeText={(text) =>
-                setFinnishWordInput({ ...finnishWordInput, notes: text })
-              }
-              style={styles.finnishInput}
-              multiline
-            />
-            <Button
-              mode="contained"
-              onPress={handleSaveFinnishWord}
-              style={styles.saveButton}
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={{ flex: 1 }}
+          keyboardVerticalOffset={100}
+        >
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <ScrollView
+              contentContainerStyle={{ flexGrow: 1 }}
+              keyboardShouldPersistTaps="handled"
             >
-              Pidä tuon kiinni
-            </Button>
-          </Card.Content>
-        </Card>
+              <Card style={styles.finnishInoutCard}>
+                <Card.Title
+                  title="Add Finnish Word"
+                  subtitle="Enter details after looking it up"
+                />
+                <Card.Content>
+                  <TextInput
+                    label="Word"
+                    value={finnishWordInput.word}
+                    onChangeText={(text) =>
+                      setFinnishWordInput({ ...finnishWordInput, word: text })
+                    }
+                    style={styles.finnishInput}
+                  />
+                  <TextInput
+                    label="Definition/Meaning"
+                    value={finnishWordInput.definition}
+                    onChangeText={(text) =>
+                      setFinnishWordInput({
+                        ...finnishWordInput,
+                        definition: text,
+                      })
+                    }
+                    style={styles.finnishInput}
+                    multiline
+                  />
+                  <TextInput
+                    label="Notes (optional)"
+                    value={finnishWordInput.notes}
+                    onChangeText={(text) =>
+                      setFinnishWordInput({ ...finnishWordInput, notes: text })
+                    }
+                    style={styles.finnishInput}
+                    multiline
+                  />
+                  <Button
+                    mode="contained"
+                    onPress={handleSaveFinnishWord}
+                    style={styles.saveButton}
+                  >
+                    Pidä tuon kiinni
+                  </Button>
+                </Card.Content>
+              </Card>
+              {/* Add extra padding at the bottom to ensure scrollability */}
+              <View style={{ height: 150 }} />
+            </ScrollView>
+          </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
       )}
 
       {/* Dictionary results display - English words */}
@@ -378,7 +404,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "stretch",
-    justifyContent: "center",
+    justifyContent: "flex-start",
     padding: 20,
     width: "100%",
   },
