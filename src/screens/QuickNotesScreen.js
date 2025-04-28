@@ -200,7 +200,7 @@ export default function QuickNotesScreen() {
       )}
 
       {/* Feedback snackbar for user actions */}
-      <Searchbar
+      <Snackbar
         visible={snackbarVisible}
         onDismiss={() => setSnackbarVisible(false)}
         duration={3000}
@@ -208,7 +208,7 @@ export default function QuickNotesScreen() {
           label: "OK",
           onPress: () => setSnackbarVisible(false),
         }}
-      ></Searchbar>
+      ></Snackbar>
     </View>
   );
 }
