@@ -154,7 +154,7 @@ export default function MyWordsScreen() {
                   setFilteredWords(savedWords);
                 }}
               >
-                Clear filters
+                Show All My Loot
               </Button>
             )}
           </View>

@@ -88,7 +88,7 @@ const QuickJotModal = ({ visible, onDismiss, onSave }) => {
             disabled={!word.trim()}
             style={styles.button}
           >
-            Jot it for Later
+            Snag it for Later
           </Button>
         </View>
       </Modal>

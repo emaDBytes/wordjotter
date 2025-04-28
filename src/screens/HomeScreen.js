@@ -73,7 +73,7 @@ export default function HomeScreen() {
           WordJotter
         </Text>
         <Text variant="titleMedium" style={styles.subtitle}>
-          The Coolest Dual-Language Word Stash
+          Your Epic Bilingual Word Vault
         </Text>
       </View>
 
@@ -150,7 +150,7 @@ export default function HomeScreen() {
           style={styles.actionButton}
           onPress={() => navigation.navigate("My Words")}
         >
-          Saved Games
+          Saved Gems
         </Button>
       </View>
 
@@ -193,7 +193,7 @@ export default function HomeScreen() {
       {/* Learning Tips Card */}
       <Card style={styles.tipsCard}>
         <Card.Content>
-          <Text variant="titleMedium">Tricks to Master Words</Text>
+          <Text variant="titleMedium">Word Wizardry Hacks</Text>
           <List.Section>
             <List.Item
               title="Regular Review"

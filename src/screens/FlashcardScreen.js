@@ -173,7 +173,7 @@ export default function FlashcardScreen() {
         await updateWordAfterReview(currentWord.id, true);
 
         // Show feedback
-        setSnackbarMessage(`Great! "${currentWord.word}" moved to next level.`);
+        setSnackbarMessage(`Sweet! "${currentWord.word}" leveled up!`);
         setSnackbarVisible(true);
 
         // Move to next card
@@ -196,7 +196,7 @@ export default function FlashcardScreen() {
 
         // Show feedback
         setSnackbarMessage(
-          `"${currentWord.word}" will show up again for practice.`
+          `"${currentWord.word}" will bounce back for another round!`
         );
         setSnackbarVisible(true);
 
@@ -358,7 +358,7 @@ export default function FlashcardScreen() {
           style={styles.needPracticeButton}
           icon="brain"
         >
-          Need Practice
+          Still Tricky
         </Button>
         <Button
           mode="contained"
@@ -366,7 +366,7 @@ export default function FlashcardScreen() {
           style={styles.knownButton}
           icon="check-circle"
         >
-          Known
+          Nailed It!
         </Button>
       </View>
 

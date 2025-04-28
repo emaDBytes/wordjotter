@@ -195,14 +195,14 @@ export default function ReminderScreen() {
         <Card.Content>
           {/* Main settings card */}
           <View style={styles.switchContainer}>
-            <Text>Enable daily reminders</Text>
+            <Text>Wake Up My Word Game</Text>
             <Switch value={enabled} onValueChange={toggleSwitch} />
           </View>
 
           {/* Time picker section - only shown when reminders are enabled */}
           {enabled && (
             <View style={styles.timeContainer}>
-              <Text>Reminder time:</Text>
+              <Text>Hit Me Up At:</Text>
               <Button mode="outlined" onPress={() => setShowTimePicker(true)}>
                 {time.getHours()}:
                 {time.getMinutes() < 10
@@ -224,8 +224,7 @@ export default function ReminderScreen() {
 
           {/* Educational information about reminders */}
           <Text style={styles.infoText}>
-            Daily reminders help build a consistent Study habit and improve your
-            vocabulary retention,
+            Daily word zaps keep your brain juiced and vocab growing!
           </Text>
         </Card.Content>
       </Card>
