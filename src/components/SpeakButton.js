@@ -7,7 +7,11 @@
  */
 
 import React from "react";
+
+// UI component import
 import { IconButton } from "react-native-paper";
+
+// Expo API import
 import * as Speech from "expo-speech";
 
 /**
@@ -38,7 +42,7 @@ const SpeakButton = ({ text, language = "en-US" }) => {
       icon="volume-high"
       size={20}
       onPress={speak}
-      accessibilityLabel={`Pronounce ${text}`}
+      accessibilityLabel={`Pronounce ${text}`} // Improves screen reader support
     />
   );
 };

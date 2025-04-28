@@ -6,11 +6,17 @@
  * navigate between cards, and mark words as known or needing practice.
  */
 
+// React and React Native imports
 import React, { useState, useEffect } from "react";
 import { StyleSheet, View, Animated, TouchableOpacity } from "react-native";
+
+// React and React Native imports
 import { Text, Button, Snackbar } from "react-native-paper";
 
+// Custom component imports
 import SpeakButton from "../components/SpeakButton";
+
+// Service imports
 import {
   getWordsForReview,
   updateWordAfterReview,
@@ -23,10 +29,15 @@ import {
  * @returns {React.Component} Flashcard learning interface
  */
 export default function FlashcardScreen() {
-  const [cards, setCards] = useState([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isFlipped, setIsFlipped] = useState(false);
-  const [flipAnim] = useState(new Animated.Value(0));
+  // Flashcard data state
+  const [cards, setCards] = useState([]); // Array of vocabulary cards for review
+  const [currentIndex, setCurrentIndex] = useState(0); // Index of current card being shown
+
+  // Card flip animation state
+  const [isFlipped, setIsFlipped] = useState(false); // Track if card is showing front or back
+  const [flipAnim] = useState(new Animated.Value(0)); // Animation value for card flip
+
+  // Feedback notification state
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
@@ -37,6 +48,7 @@ export default function FlashcardScreen() {
 
   /**
    * Loads words due for review and shuffles them for practice
+   * Implements Fisher-Yates shuffle algorithm for randomized presentation
    */
   const loadCards = async () => {
     try {
@@ -68,6 +80,7 @@ export default function FlashcardScreen() {
 
   /**
    * Handles card flip animation
+   * Toggles between front (word) and back (definition) of flashcard
    */
   const flipCard = () => {
     setIsFlipped(!isFlipped);
@@ -80,6 +93,7 @@ export default function FlashcardScreen() {
 
   /**
    * Navigates to the next card in the deck
+   * Ensures card is face-down before proceeding
    */
   const nextCard = () => {
     if (currentIndex < cards.length - 1) {

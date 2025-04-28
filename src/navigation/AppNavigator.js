@@ -15,13 +15,16 @@
  * establishes relationships between different functional areas.
  */
 
+// Navigation imports
 import React, { useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+
+// UI and icon imports
 import { Ionicons } from "@expo/vector-icons";
 import { Snackbar } from "react-native-paper";
 
-// Import Screens
+// Screen imports
 import HomeScreen from "../screens/HomeScreen";
 import SearchScreen from "../screens/SearchScreen";
 import MyWordsScreen from "../screens/MyWordsScreen";
@@ -29,9 +32,11 @@ import FlashcardScreen from "../screens/FlashcardScreen";
 import ReminderScreen from "../screens/ReminderScreen";
 import QuickNotesScreen from "../screens/QuickNotesScreen";
 
-// Import Quick Jot components
+// Component imports
 import QuickJotButton from "../components/QuickJotButton";
 import QuickJotModal from "../components/QuickJotModal";
+
+// Service imports
 import { saveQuickNote } from "../services/databaseService";
 
 const Tab = createBottomTabNavigator();
@@ -42,10 +47,10 @@ const Tab = createBottomTabNavigator();
  * @returns {React.Component} The main navigation container with all screen and global UI
  */
 export default function AppNavigator() {
-  // State for managing the quick jot modal visibility
+  // Modal visibility state
   const [quickJotVisible, setQuickJotVisible] = useState(false);
 
-  // States for the snackbar feedbacks
+  // Feedback notification states
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
@@ -71,11 +76,13 @@ export default function AppNavigator() {
 
   return (
     <NavigationContainer>
+      {/* Main tab navigation */}
       <Tab.Navigator
         screenOptions={({ route }) => ({
           tabBarIcon: ({ focused, color, size }) => {
             let iconName;
 
+            // Determine appropriate icon based on route name and focus state
             if (route.name === "Home") {
               iconName = focused ? "home" : "home-outline";
             } else if (route.name === "Search") {
@@ -90,15 +97,27 @@ export default function AppNavigator() {
               iconName = focused ? "pencil" : "pencil-outline";
             }
 
+            // Return the appropriate icon component
             return <Ionicons name={iconName} size={size} color={color} />;
           },
         })}
       >
+        {/* Home and dashboard screen */}
         <Tab.Screen name="Home" component={HomeScreen} />
+
+        {/* Dictionary search screen */}
         <Tab.Screen name="Search" component={SearchScreen} />
+
+        {/* Saved vocabulary management screen */}
         <Tab.Screen name="My Words" component={MyWordsScreen} />
+
+        {/* Quick notes management screen */}
         <Tab.Screen name="Quick Notes" component={QuickNotesScreen} />
+
+        {/* Vocabulary learning screen */}
         <Tab.Screen name="Flashcards" component={FlashcardScreen} />
+
+        {/* App settings and notifications screen */}
         <Tab.Screen name="Settings" component={ReminderScreen} />
       </Tab.Navigator>
 

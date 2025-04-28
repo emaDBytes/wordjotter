@@ -9,6 +9,13 @@ import React from "react";
 import { StyleSheet } from "react-native";
 import { FAB } from "react-native-paper";
 
+/**
+ * Renders a floating action button for quick vocabulary capture
+ *
+ * @param {Object} props - Component props
+ * @param {Function} props.onPress - Function to call when button is pressed
+ * @returns {React.Component} A floating action button
+ */
 const QuickJotButton = ({ onPress }) => {
   return (
     <FAB
