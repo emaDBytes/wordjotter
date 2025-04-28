@@ -150,7 +150,7 @@ export default function HomeScreen() {
           style={styles.actionButton}
           onPress={() => navigation.navigate("My Words")}
         >
-          Saved Gems
+          Saved Games
         </Button>
       </View>
 
