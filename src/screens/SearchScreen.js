@@ -79,6 +79,7 @@ export default function SearchScreen({ route }) {
    * @param {Object} entry - The full word entry from API results
    * @param {number} meaningIndex - Index of the selected meaning in entry.meanings array
    * @param {number} definitionIndex - Index of the selected definition in meaning.definitions array
+   * @returns {Promise<void>}
    */
   const handleSaveWord = async (entry, meaningIndex, definitionIndex) => {
     const meaning = entry.meanings[meaningIndex];
@@ -113,6 +114,8 @@ export default function SearchScreen({ route }) {
    * Saves a Finnish word with user-provided definition to the vocabulary database
    * Updates quick note processing status if applicable
    * Validates input and provides user feedback
+   *
+   * @returns {Promise<void>}
    */
   const handleSaveFinnishWord = async () => {
     if (!finnishWordInput.word.trim()) {

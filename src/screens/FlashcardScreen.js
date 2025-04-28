@@ -212,7 +212,7 @@ export default function FlashcardScreen() {
    * Formats the next review date into a user-friendly string
    *
    * @param {string} dateString - ISO date string from database
-   * @returns {string} Human-readable date representation
+   * @returns {string} Human-readable date representation ("Today", "Tomorrow", or formatted date)
    */
   const formatNextReviewDate = (dateString) => {
     try {

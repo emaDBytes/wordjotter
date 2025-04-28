@@ -39,6 +39,8 @@ export default function HomeScreen() {
   /**
    * Fetches saved words and learning statistics from the database
    * and updates component state
+   *
+   * @returns {Promise<void>}
    */
   const loadData = async () => {
     try {

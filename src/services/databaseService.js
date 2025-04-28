@@ -118,6 +118,7 @@ export const deleteWord = async (id) => {
  *
  * @param {string} category - Category to be used to filter
  * @returns {Promise<Array>} Array of word objects matching the category
+ * @throws {Error} Logs error to console but does not throw to caller
  */
 export const getWordsByCategory = async (category) => {
   try {

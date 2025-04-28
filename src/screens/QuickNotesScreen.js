@@ -58,6 +58,8 @@ export default function QuickNotesScreen() {
    * Fetches quick notes from the database based on current filter settings
    * Updates the notes state with the retrieved data
    * Handles loading state and potential errors during data fetching
+   *
+   * @returns {Promise<void>}
    */
   const loadNotes = async () => {
     setLoading(true);
