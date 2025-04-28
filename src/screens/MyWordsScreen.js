@@ -107,8 +107,12 @@ export default function MyWordsScreen() {
         onChangeText={onChangeSearch}
         value={searchQuery}
         style={styles.searchbar}
-        clearIcon={() => (searchQuery ? "close" : "")}
-        onClearIconPress={() => setSearchQuery("")}
+        icon="magnify" // Explicitly set the search icon
+        clearButtonMode="while-editing" // Let the system handle the clear button
+        onClear={() => {
+          setSearchQuery("");
+          onChangeSearch(""); // Ensure filters are updated
+        }}
       />
 
       {categories.length > 0 && (
