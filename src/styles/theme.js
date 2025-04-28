@@ -5,6 +5,16 @@
  * theming system. This file centralizes color palette, typography, and other visual
  * styling parameters to ensure consistent design across the application.
  *
+ * The theme extends React Native Paper's DefaultTheme with customized colors
+ * optimized for a vocabulary learning application, providing a cohesive visual
+ * identity throughout the user experience.
+ *
+ * Developers can modify this theme to:
+ * - Adjust the color scheme to match brand guidelines
+ * - Update typography settings for better readability
+ * - Modify component styling like roundness and elevation
+ * - Create light/dark mode variations
+ *
  * @module styles/theme
  */
 

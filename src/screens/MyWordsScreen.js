@@ -1,3 +1,23 @@
+/**
+ * MyWordsScreen Component
+ *
+ * Displays and manages the user's saved vocabulary collection. This screen serves
+ * as the central vocabulary management interface, allowing users to:
+ * - View all saved words with their definitions and metadata
+ * - Filter words by category using horizontal chip navigation
+ * - Search within their vocabulary collection
+ * - Delete words they no longer wish to review
+ * - Access pronunciation through the integrated speech synthesis
+ *
+ * The component connects directly to the database service to retrieve and
+ * manipulate the user's personal vocabulary collection, and automatically
+ * refreshes when the screen comes into focus using React Navigation's hooks.
+ *
+ * This screen represents the "collection" aspect of the vocabulary learning
+ * workflow, complementing the discovery (SearchScreen) and practice (FlashcardScreen)
+ * components of the application.
+ */
+
 import React, { useState, useEffect, useCallback } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import { StyleSheet, View, ScrollView, RefreshControl } from "react-native";
@@ -35,7 +55,7 @@ export default function MyWordsScreen() {
     setLoading(false);
   };
 
-  // Apply filters based on search query and selected vategory
+  // Apply filters based on search query and selected category
   const applyFilters = (words, query, category) => {
     let filtered = words;
 

@@ -2,8 +2,17 @@
  * App Navigation Component
  *
  * Handles the primary navigation structure of the application using React Navigation.
- * Includes bottom tab navigation between main screens and provides the global
- * Quick Jot functionality through a floating action button present across app.
+ * Implements a bottom tab navigator that connects all major screens of the app and
+ * manages the global application state for features like Quick Jot.
+ *
+ * This component serves as the central hub for:
+ * - Screen navigation and user flow management
+ * - Global UI elements accessible throughout the app
+ * - Cross-screen state coordination for features like quick note capture
+ * - User feedback through the Snackbar notification system
+ *
+ * The navigation structure defines the app's information architecture and
+ * establishes relationships between different functional areas.
  */
 
 import React, { useState } from "react";
