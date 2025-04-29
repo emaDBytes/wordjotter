@@ -13,9 +13,12 @@
  * capture vocabulary items they encounter for later processing.
  */
 
+// React and Navigation imports
 import React, { useState } from "react";
 import { StyleSheet, View, FlatList } from "react-native";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
+
+// UI component imports
 import {
   Text,
   Card,
@@ -27,6 +30,7 @@ import {
   Snackbar,
 } from "react-native-paper";
 
+// Service imports
 import {
   getQuickNotes,
   deleteQuickNote,
@@ -36,7 +40,10 @@ import {
 export default function QuickNotesScreen() {
   const navigation = useNavigation();
 
+  // Data state - manages quick notes collection
   const [notes, setNotes] = useState([]);
+
+  // UI state - controls filters, loading, and user feedback
   const [searchQuery, setSearchQuery] = useState("");
   const [showProcessed, setShowProcessed] = useState(false);
   const [snackbarVisible, setSnackbarVisible] = useState(false);
@@ -58,8 +65,6 @@ export default function QuickNotesScreen() {
    * Fetches quick notes from the database based on current filter settings
    * Updates the notes state with the retrieved data
    * Handles loading state and potential errors during data fetching
-   *
-   * @returns {Promise<void>}
    */
   const loadNotes = async () => {
     setLoading(true);
@@ -108,6 +113,7 @@ export default function QuickNotesScreen() {
         setSnackbarMessage("Failed to delete note!");
       }
       setSnackbarVisible(true);
+      loadNotes(); // Refresh notes list after deletion
     } catch (error) {
       console.error("Error occurred while deleting!");
       setSnackbarVisible(true);

@@ -18,9 +18,12 @@
  * components of the application.
  */
 
+// React and Navigation imports
 import React, { useState, useEffect, useCallback } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import { StyleSheet, View, ScrollView, RefreshControl } from "react-native";
+
+// UI component imports
 import {
   Text,
   Card,
@@ -31,17 +34,25 @@ import {
   Divider,
 } from "react-native-paper";
 
+// Service and component imports
 import { getSavedWords, deleteWord } from "../services/databaseService";
 import SpeakButton from "../components/SpeakButton";
 
 export default function MyWordsScreen() {
+  // Data state - manages vocabulary items and their filtered subsets
   const [savedWords, setSavedWords] = useState([]);
   const [filteredWords, setFilteredWords] = useState([]);
+
+  // UI state - controls loading indicators and user interactions
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [categories, setCategories] = useState([]);
 
+  /**
+   * Loads saved words from database and extracts unique categories
+   * Updates both the full dataset and the filtered view
+   */
   const loadSavedWords = async () => {
     setLoading(true);
     const words = await getSavedWords();
@@ -55,16 +66,24 @@ export default function MyWordsScreen() {
     setLoading(false);
   };
 
-  // Apply filters based on search query and selected category
+  /**
+   * Filters vocabulary items based on search text and category selection
+   *
+   * @param {Array} words - Complete list of vocabulary items
+   * @param {string} query - User's search text
+   * @param {string} category - Selected category filter
+   */
   const applyFilters = (words, query, category) => {
     let filtered = words;
 
+    // Apply text search filter
     if (query) {
       filtered = filtered.filter((word) =>
         word.word.toLowerCase().includes(query.toLowerCase())
       );
     }
 
+    // Apply category filter
     if (category) {
       filtered = filtered.filter((word) => word.category === category);
     }
@@ -80,6 +99,7 @@ export default function MyWordsScreen() {
 
   // Handle category selection
   const handleCategorySelect = (category) => {
+    // Toggle selection if tapping already selected category
     const newSelection = selectedCategory === category ? null : category;
     setSelectedCategory(newSelection);
     applyFilters(savedWords, searchQuery, newSelection);
@@ -102,19 +122,21 @@ export default function MyWordsScreen() {
 
   return (
     <View style={styles.container}>
+      {/* Search input for filtering words */}
       <Searchbar
         placeholder="Search words..."
         onChangeText={onChangeSearch}
         value={searchQuery}
         style={styles.searchbar}
-        icon="magnify" // Explicitly set the search icon
-        clearButtonMode="while-editing" // Let the system handle the clear button
+        icon="magnify"
+        clearButtonMode="while-editing"
         onClear={() => {
           setSearchQuery("");
           onChangeSearch(""); // Ensure filters are updated
         }}
       />
 
+      {/* Category filter chips - only displayed if categories exist */}
       {categories.length > 0 && (
         <View style={styles.chipContainer}>
           <ScrollView
@@ -138,17 +160,20 @@ export default function MyWordsScreen() {
         </View>
       )}
 
+      {/* Word list with pull-to-refresh functionality */}
       <ScrollView
         refreshControl={
           <RefreshControl refreshing={loading} onRefresh={loadSavedWords} />
         }
         style={styles.wordsContainer}
       >
+        {/* Empty state when no words match filters */}
         {filteredWords.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>
               No Wordy Treasures Unearthed!
             </Text>
+            {/* Option to clear filters when results are empty */}
             {(searchQuery || selectedCategory) && (
               <Button
                 mode="outlined"
@@ -163,6 +188,7 @@ export default function MyWordsScreen() {
             )}
           </View>
         ) : (
+          /* Word cards display - shown when words match filters */
           filteredWords.map((word) => (
             <Card key={word.id} style={styles.wordCard}>
               <Card.Title
@@ -183,6 +209,7 @@ export default function MyWordsScreen() {
               />
               <Card.Content>
                 <Text variant="bodyMedium">{word.definition}</Text>
+                {/* Conditional rendering for optional word metadata */}
                 {word.phonetic && (
                   <Text variant="bodySmall" style={styles.phonetic}>
                     {word.phonetic}
