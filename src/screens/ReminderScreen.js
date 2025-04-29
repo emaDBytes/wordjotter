@@ -12,11 +12,15 @@
  * app sessions.
  */
 
+// React and React Native imports
 import React, { useState, useEffect } from "react";
 import { StyleSheet, View, Platform, Alert } from "react-native";
+
+// UI component imports
 import { Text, Switch, Button, Card, Snackbar } from "react-native-paper";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
+// Service imports - notification and database functionality
 import {
   requestNotificationPermissions,
   scheduleDailyReminder,
@@ -24,18 +28,22 @@ import {
   checkNotificationPermissions,
   getScheduledReminders,
 } from "../services/notificationService";
-
 import {
   saveReminderSetting,
   getReminderSettings,
 } from "../services/databaseService";
 
 export default function ReminderScreen() {
+  // Feature state - controls main reminder functionality
   const [enabled, setEnabled] = useState(false);
   const [time, setTime] = useState(new Date());
+
+  // UI state - controls interface elements
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+
+  // Permission state - tracks notification authorization
   const [hasPermission, setHasPermission] = useState(false);
 
   /**

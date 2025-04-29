@@ -1,8 +1,17 @@
-import { registerRootComponent } from 'expo';
+/**
+ * Application Entry Point
+ *
+ * Registers the main App component with Expo's root component registry.
+ * This file is the first code executed when the application starts and
+ * serves as the bridge between React Native and the native platforms.
+ */
 
-import App from './App';
+// Expo registration utility
+import { registerRootComponent } from "expo";
 
-// registerRootComponent calls AppRegistry.registerComponent('main', () => App);
-// It also ensures that whether you load the app in Expo Go or in a native build,
-// the environment is set up appropriately
+// Main application component
+import App from "./App";
+
+// Register the App component as the root component
+// This ensures proper setup in both Expo Go and native builds
 registerRootComponent(App);

@@ -6,10 +6,14 @@
  * the main navigation structure.
  */
 
+// React and core imports
 import React, { useEffect } from "react";
+
+// UI and theming imports
 import { Provider as PaperProvider } from "react-native-paper";
 import { StatusBar } from "expo-status-bar";
 
+// Application components and services
 import AppNavigator from "./src/navigation/AppNavigator";
 import { appTheme } from "./src/styles/theme";
 import { initDatabase } from "./src/services/databaseService";
@@ -29,7 +33,10 @@ export default function App() {
 
   return (
     <PaperProvider theme={appTheme}>
+      {/* Status bar configuration */}
       <StatusBar style="auto" />
+
+      {/* Main navigation structure */}
       <AppNavigator />
     </PaperProvider>
   );

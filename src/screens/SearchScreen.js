@@ -14,6 +14,7 @@
  *   manual entry of definitions after lookup
  */
 
+// React and React Native imports
 import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
@@ -24,6 +25,8 @@ import {
   TouchableWithoutFeedback,
   Platform,
 } from "react-native";
+
+// UI component imports
 import {
   Text,
   TextInput,
@@ -35,21 +38,29 @@ import {
   Card,
 } from "react-native-paper";
 
+// Service and component imports
+import SpeakButton from "../components/SpeakButton";
+import { markNoteProcessed, saveWord } from "../services/databaseService";
 import {
   fetchWordDefinition,
   openFinnishDictionary,
 } from "../services/dictionaryService";
-import { markNoteProcessed, saveWord } from "../services/databaseService";
-import SpeakButton from "../components/SpeakButton";
 
 export default function SearchScreen({ route }) {
+  // Search and language state
   const [searchTerm, setSearchTerm] = useState("");
   const [language, setLanguage] = useState("en"); // 'en' for English and 'fi' for Finnish.
+
+  // API and loading state
   const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState(null);
   const [error, setError] = useState(null);
+
+  // UI feedback state
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+
+  // Finnish word input form state
   const [finnishWordInput, setFinnishWordInput] = useState({
     word: "",
     definition: "",
@@ -57,7 +68,7 @@ export default function SearchScreen({ route }) {
   });
   const [showFinnishInput, setShowFinnishInput] = useState(false);
 
-  // Extract parameters from navigation, if available
+  // Navigation parameters - used for Quick Jot integration
   const prefilledWord = route.params?.prefilledWord || "";
   const prefilledLanguage = route.params?.prefilledLanguage || "en";
   const quickNoteId = route.params?.quickNoteId;
@@ -206,6 +217,7 @@ export default function SearchScreen({ route }) {
 
   return (
     <View style={styles.container}>
+      {/* Screen header */}
       <Text variant="headlineMedium" style={styles.title}>
         Search Words
       </Text>
@@ -249,7 +261,7 @@ export default function SearchScreen({ route }) {
         </Button>
       </View>
 
-      {/* Loading indicator */}
+      {/* Loading indicator - conditionally rendered during API requests */}
       {isLoading && (
         <ActivityIndicator
           animating={true}
@@ -258,14 +270,14 @@ export default function SearchScreen({ route }) {
         />
       )}
 
-      {/* Error message display */}
+      {/* Error message display - conditionally rendered when API errors occur */}
       {error && (
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>{error}</Text>
         </View>
       )}
 
-      {/* Finnish word's input form */}
+      {/* Finnish word input form - conditionally rendered after browser lookup */}
       {showFinnishInput && (
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -328,7 +340,7 @@ export default function SearchScreen({ route }) {
         </KeyboardAvoidingView>
       )}
 
-      {/* Dictionary results display - English words */}
+      {/* Dictionary results display - conditionally rendered for English words */}
       {results && (
         <ScrollView style={styles.resultsContainer}>
           {results.map((entry, index) => (
