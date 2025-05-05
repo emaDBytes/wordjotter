@@ -19,7 +19,9 @@
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/icons/adaptive-icon.png",
         "backgroundColor": "#ffffff",
-        "permissions": ["NOTIFICATIONS"]
+        "permissions": [
+          "NOTIFICATIONS"
+        ]
       }
     },
     "web": {
@@ -32,9 +34,12 @@
         {
           "icon": "./src/assets/icons/notification-icon.png",
           "color": "#ffffff",
-          "sounds": ["./src/assets/sounds/reminder.wav"]
+          "sounds": [
+            "./src/assets/sounds/reminder.wav"
+          ]
         }
-      ]
+      ],
+      "expo-web-browser"
     ]
   }
 }
