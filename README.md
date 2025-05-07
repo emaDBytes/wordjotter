@@ -154,11 +154,14 @@ WordJotter is continually evolving with plans to add:
 
 Contributions are welcome! Feel free to submit issues or pull requests.
 
-## Credits 🙏
+## Credits & Acknowledgments 🙏
 
-- [Free Dictionary API](https://dictionaryapi.dev/) for English definitions
-- [RedFox Dictionary](https://redfoxsanakirja.fi/) for Finnish language support
-- Haaga-Helia UAS Mobile Programming course for the project foundation
+- [Free Dictionary API](https://dictionaryapi.dev/) for providing comprehensive English definitions
+- [RedFox Dictionary](https://redfoxsanakirja.fi/) for Finnish language reference support
+- [Expo](https://expo.dev/) team for their excellent mobile development toolchain
+- [React Native Paper](https://callstack.github.io/react-native-paper/) for the Material Design component library
+- Special thanks to [Juha Hinkula](https://github.com/juhahinkula), the instructor of the Mobile Programming course at Haaga-Helia UAS, for guidance and expertise
+- The spaced repetition algorithm was inspired by memory research and established learning systems like Anki
 
 ## License 📄
 
