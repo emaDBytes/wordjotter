@@ -28,7 +28,15 @@ import { initDatabase } from "./src/services/databaseService";
 export default function App() {
   // Initialize database on app's start
   useEffect(() => {
-    initDatabase();
+    const setupDatabase = async () => {
+      try {
+        await initDatabase();
+        console.log("Database initialized successfully");
+      } catch (error) {
+        console.error("Database initialization failed:", error);
+      }
+    };
+    setupDatabase();
   }, []);
 
   return (
