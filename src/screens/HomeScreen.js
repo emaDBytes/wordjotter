@@ -12,7 +12,7 @@ import { StyleSheet, View, ScrollView } from "react-native";
 import { Text, Card, Button, List, Divider } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 
-import { getSavedWords, getLearningStats } from "../services/databaseService";
+import { getWords } from "../services/firestoreService";
 import { useAuth } from "../contexts/AuthContext";
 import { logoutUser } from "../services/authService";
 
@@ -52,23 +52,39 @@ export default function HomeScreen() {
    */
   const loadData = async () => {
     try {
-      const words = await getSavedWords();
+      const words = await getWords(user.uid);
 
       // Get 5 most recent words
       setRecentWords(words.slice(0, 5));
 
-      // Get learning statistics for progress display
-      const learningStats = await getLearningStats();
-      console.log("Learning stats: ", learningStats);
+      // Calculate learning statistics from Firestore data
+      let knownWords = 0;
+      let needPractice = 0;
+      const learningLevels = [0, 0, 0, 0, 0, 0];
 
-      // Update statistics state with calculated values
+      words.forEach((word) => {
+        // Use 'difficulty' field (Firestore) which maps to learning level
+        const level = word.difficulty || 0;
+
+        if (level >= 0 && level < learningLevels.length) {
+          learningLevels[level]++;
+        }
+
+        if (level >= 3) {
+          knownWords++;
+        } else {
+          needPractice++;
+        }
+      });
+
+      // Update statistics state
       setStats({
         total: words.length,
         english: words.filter((word) => word.language === "en").length,
         finnish: words.filter((word) => word.language === "fi").length,
-        knownWords: learningStats.knownWords,
-        needPractice: learningStats.needPractice,
-        learningLevels: learningStats.learningLevels,
+        knownWords: knownWords,
+        needPractice: needPractice,
+        learningLevels: learningLevels,
       });
     } catch (error) {
       console.error("Error in loading data: ", error);

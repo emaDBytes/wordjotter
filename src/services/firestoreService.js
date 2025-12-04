@@ -70,3 +70,64 @@ export const deleteWord = async (userId, wordId) => {
     const wordRef = doc(db, 'users', userId, 'savedWords', wordId);
     await deleteDoc(wordRef);
 };
+
+/**
+ * Spaced repetition intervals in days
+ */
+const INTERVALS = [1, 3, 7, 14, 30, 90];
+
+/**
+ * Get words due for review
+ * @param {string} userId - The authenticated user's ID
+ * @returns {Promise<Array>} Array of words due for review
+ */
+export const getWordsForReview = async (userId) => {
+    const words = await getWords(userId);
+    const today = new Date();
+
+    return words.filter((word) => {
+        // If word has never been reviewed or has no nextReview, include it
+        if (word.difficulty === 0 || !word.nextReview) {
+            return true;
+        }
+
+        // Check if nextReview date is today or earlier
+        const nextReviewDate = word.nextReview.toDate ? word.nextReview.toDate() : new Date(word.nextReview);
+        return nextReviewDate <= today;
+    });
+};
+
+/**
+ * Update word after review (spaced repetition)
+ * @param {string} userId - The authenticated user's ID
+ * @param {string} wordId - The document ID
+ * @param {boolean} isCorrect - Whether user knew the word
+ * @returns {Promise<void>}
+ */
+export const updateWordAfterReview = async (userId, wordId, isCorrect) => {
+    const words = await getWords(userId);
+    const word = words.find((w) => w.id === wordId);
+
+    if (!word) return;
+
+    let difficulty = word.difficulty || 0;
+
+    if (isCorrect) {
+        // Move to next level (max 5)
+        difficulty = Math.min(difficulty + 1, INTERVALS.length - 1);
+    } else {
+        // Reset to level 0
+        difficulty = 0;
+    }
+
+    // Calculate next review date
+    const nextReview = new Date();
+    nextReview.setDate(nextReview.getDate() + INTERVALS[difficulty]);
+
+    await updateWord(userId, wordId, {
+        difficulty: difficulty,
+        lastReviewed: new Date(),
+        nextReview: nextReview,
+        reviewCount: (word.reviewCount || 0) + 1
+    });
+};
