@@ -211,7 +211,6 @@ junit.xml
 jest-junit.xml
 
 # Project specific sensitive information
-config/firebase.js
 keys.js
 config.js
 google-services.json

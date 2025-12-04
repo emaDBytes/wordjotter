@@ -13,7 +13,7 @@ import {
     signOut,
     onAuthStateChanged
 } from 'firebase/auth';
-import { auth } from '../../config/firebase';
+import { auth } from '../config/firebase';
 
 /**
  * Registers a new user with email and password.
