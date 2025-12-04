@@ -18,6 +18,9 @@ import AppNavigator from "./src/navigation/AppNavigator";
 import { appTheme } from "./src/styles/theme";
 import { initDatabase } from "./src/services/databaseService";
 
+// Authentication provider
+import { AuthProvider } from "./src/contexts/AuthContext";
+
 /**
  * App component is the root component of the application.
  * It initializes the database on first render and wraps the application
@@ -40,12 +43,14 @@ export default function App() {
   }, []);
 
   return (
-    <PaperProvider theme={appTheme}>
-      {/* Status bar configuration */}
-      <StatusBar style="auto" />
+    <AuthProvider>
+      <PaperProvider theme={appTheme}>
+        {/* Status bar configuration */}
+        <StatusBar style="auto" />
 
-      {/* Main navigation structure */}
-      <AppNavigator />
-    </PaperProvider>
+        {/* Main navigation structure */}
+        <AppNavigator />
+      </PaperProvider>
+    </AuthProvider>
   );
 }
