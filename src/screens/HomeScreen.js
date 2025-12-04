@@ -13,6 +13,8 @@ import { Text, Card, Button, List, Divider } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 
 import { getSavedWords, getLearningStats } from "../services/databaseService";
+import { useAuth } from "../contexts/AuthContext";
+import { logoutUser } from "../services/authService";
 
 /**
  * HomeScreen displays vocabulary statistics, learning progress, and access
@@ -22,6 +24,12 @@ import { getSavedWords, getLearningStats } from "../services/databaseService";
  */
 export default function HomeScreen() {
   const navigation = useNavigation();
+  const { user } = useAuth();
+
+  const handleLogout = async () => {
+    await logoutUser();
+  };
+
   const [recentWords, setRecentWords] = useState([]);
   const [stats, setStats] = useState({
     total: 0,
@@ -77,6 +85,12 @@ export default function HomeScreen() {
         <Text variant="titleMedium" style={styles.subtitle}>
           Your Epic Bilingual Word Vault
         </Text>
+        <Text variant="bodySmall" style={styles.userEmail}>
+          {user?.email}
+        </Text>
+        <Button mode="outlined" onPress={handleLogout} style={styles.logoutButton}>
+          Sign Out
+        </Button>
       </View>
 
       {/* Language Statistics Card */}
@@ -315,5 +329,14 @@ const styles = StyleSheet.create({
     marginTop: 8,
     fontStyle: "italic",
     color: "#666",
+  },
+  userEmail: {
+    textAlign: "center",
+    color: "#666",
+    marginTop: 8,
+  },
+  logoutButton: {
+    marginTop: 12,
+    alignSelf: "center",
   },
 });
