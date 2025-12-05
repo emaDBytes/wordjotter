@@ -38,7 +38,7 @@ import QuickJotButton from "../components/QuickJotButton";
 import QuickJotModal from "../components/QuickJotModal";
 
 // Service imports
-import { saveQuickNote } from "../services/databaseService";
+import { saveQuickNote } from "../services/firestoreService";
 
 // Auth imports
 import { useAuth } from "../contexts/AuthContext";
@@ -49,9 +49,9 @@ const Stack = createNativeStackNavigator();
 /**
  * AuthStack component for unauthenticated users.
  * Provides Login and SignUp screens.
- *
- * @returns {React.Component} Stack navigator with auth screens
- */
+*
+* @returns {React.Component} Stack navigator with auth screens
+*/
 function AuthStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -64,11 +64,11 @@ function AuthStack() {
 /**
  * MainTabs component for authenticated users.
  * Provides the bottom tab navigation with all app features.
- *
- * @param {Object} props - Component props
- * @param {Function} props.onQuickJotPress - Handler for QuickJot button press
- * @returns {React.Component} Tab navigator with main app screens
- */
+*
+* @param {Object} props - Component props
+* @param {Function} props.onQuickJotPress - Handler for QuickJot button press
+* @returns {React.Component} Tab navigator with main app screens
+*/
 function MainTabs({ onQuickJotPress }) {
   return (
     <Tab.Navigator
@@ -115,10 +115,11 @@ function MainTabs({ onQuickJotPress }) {
 
 /**
  * AppNavigator component provides the main navigation structure and global UI elements
- *
+*
  * @returns {React.Component} The main navigation container with auth flow and global UI
- */
+*/
 export default function AppNavigator() {
+  const { user } = useAuth();
   // Auth state
   const { isAuthenticated, loading } = useAuth();
 
@@ -129,21 +130,13 @@ export default function AppNavigator() {
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
-  /**
-   * Handles saving a quick note to the database and displays feedback
-   *
-   * @param {Object} noteData - Data for the note to be saved
-   * @param {string} noteData.word - The word to save
-   * @param {string} noteData.language - Language code ("en" or "fi")
-   * @param {string} noteData.notes - Optional context notes
-   */
   const handleSaveQuickNote = async (noteData) => {
-    const success = await saveQuickNote(noteData);
-
-    if (success) {
+    try {
+      await saveQuickNote(user.uid, noteData);
       setSnackbarMessage(`"${noteData.word}" jotted for later!`);
       setSnackbarVisible(true);
-    } else {
+    } catch (error) {
+      console.error("Error saving quick note:", error);
       setSnackbarMessage("Failed to save note. Please try again.");
       setSnackbarVisible(true);
     }

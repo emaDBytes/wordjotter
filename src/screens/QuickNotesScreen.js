@@ -30,14 +30,14 @@ import {
   Snackbar,
 } from "react-native-paper";
 
-// Service imports
 import {
   getQuickNotes,
   deleteQuickNote,
-  markNoteProcessed,
-} from "../services/databaseService";
+} from "../services/firestoreService";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function QuickNotesScreen() {
+  const { user } = useAuth();
   const navigation = useNavigation();
 
   // Data state - manages quick notes collection
@@ -69,7 +69,7 @@ export default function QuickNotesScreen() {
   const loadNotes = async () => {
     setLoading(true);
     try {
-      const quickNotes = await getQuickNotes(showProcessed);
+      const quickNotes = await getQuickNotes(user.uid, showProcessed);
       setNotes(quickNotes);
     } catch (error) {
       console.error("Error in loading notes: ", error);
@@ -106,7 +106,7 @@ export default function QuickNotesScreen() {
    */
   const handleDelete = async (id) => {
     try {
-      const success = await deleteQuickNote(id);
+      const success = await deleteQuickNote(user.uid, id);
       if (success) {
         setSnackbarMessage("Note deleted successfully");
       } else {

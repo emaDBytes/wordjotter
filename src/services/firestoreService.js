@@ -8,7 +8,10 @@ import {
     deleteDoc,
     query,
     orderBy,
-    serverTimestamp
+    serverTimestamp,
+    setDoc,
+    getDoc,
+    where
 } from 'firebase/firestore';
 
 /**
@@ -130,4 +133,72 @@ export const updateWordAfterReview = async (userId, wordId, isCorrect) => {
         nextReview: nextReview,
         reviewCount: (word.reviewCount || 0) + 1
     });
+};
+
+
+
+// ============ QUICK NOTES FUNCTIONS ============
+
+export const saveQuickNote = async (userId, noteData) => {
+    const { word, language, notes = "" } = noteData;
+    const notesRef = collection(db, 'users', userId, 'quickNotes');
+    const docRef = await addDoc(notesRef, {
+        word: word,
+        language: language,
+        notes: notes,
+        processed: false,
+        createdAt: serverTimestamp()
+    });
+    return docRef.id;
+};
+
+export const getQuickNotes = async (userId, showProcessed = false) => {
+    const notesRef = collection(db, 'users', userId, 'quickNotes');
+    const q = query(
+        notesRef,
+        where('processed', '==', showProcessed),
+        orderBy('createdAt', 'desc')
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+    }));
+};
+
+export const markNoteProcessed = async (userId, noteId) => {
+    const noteRef = doc(db, 'users', userId, 'quickNotes', noteId);
+    await updateDoc(noteRef, { processed: true });
+};
+
+export const deleteQuickNote = async (userId, noteId) => {
+    const noteRef = doc(db, 'users', userId, 'quickNotes', noteId);
+    await deleteDoc(noteRef);
+};
+
+
+
+// ============ REMINDER SETTINGS FUNCTIONS ============
+
+export const saveReminderSetting = async (userId, settings) => {
+    const settingsRef = doc(db, 'users', userId, 'settings', 'reminders');
+    await setDoc(settingsRef, {
+        enabled: settings.enabled,
+        hour: settings.hour,
+        minute: settings.minute,
+        updatedAt: serverTimestamp()
+    }, { merge: true });
+};
+
+export const getReminderSettings = async (userId) => {
+    const settingsRef = doc(db, 'users', userId, 'settings', 'reminders');
+    const snapshot = await getDoc(settingsRef);
+    if (snapshot.exists()) {
+        return snapshot.data();
+    }
+    return {
+        enabled: false,
+        hour: 9,
+        minute: 0
+    };
 };

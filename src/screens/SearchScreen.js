@@ -40,7 +40,7 @@ import {
 
 // Service and component imports
 import SpeakButton from "../components/SpeakButton";
-import { markNoteProcessed } from "../services/databaseService";
+import { markNoteProcessed } from "../services/firestoreService";
 import { addWord } from "../services/firestoreService";
 import { useAuth } from "../contexts/AuthContext";
 import {
@@ -128,7 +128,7 @@ export default function SearchScreen({ route }) {
 
     // If saving was successful and we have a quickNoteId, mark it as processed
     if (success && quickNoteId) {
-      await markNoteProcessed(quickNoteId);
+      await markNoteProcessed(user.uid, quickNoteId);
     }
 
     if (success) {
@@ -175,7 +175,7 @@ export default function SearchScreen({ route }) {
 
     // If saving was successful and we have a quickNoteId, mark it as processed
     if (success && quickNoteId) {
-      await markNoteProcessed(quickNoteId);
+      await markNoteProcessed(user.uid, quickNoteId);
     }
 
     if (success) {
