@@ -8,6 +8,7 @@
 
 // React and core imports
 import React, { useEffect } from "react";
+import { AuthProvider } from './src/contexts/AuthContext';
 
 // UI and theming imports
 import { Provider as PaperProvider } from "react-native-paper";
@@ -41,11 +42,11 @@ export default function App() {
 
   return (
     <PaperProvider theme={appTheme}>
-      {/* Status bar configuration */}
       <StatusBar style="auto" />
 
-      {/* Main navigation structure */}
-      <AppNavigator />
+      <AuthProvider>
+        <AppNavigator />
+      </AuthProvider>
     </PaperProvider>
   );
 }
