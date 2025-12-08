@@ -13,6 +13,12 @@ import { Text, Card, Button, List, Divider } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 
 import { getSavedWords, getLearningStats } from "../services/databaseService";
+import { useAuth } from '../contexts/AuthContext';
+import {
+  addWord,
+  getWords,
+  deleteWord
+} from '../services/supabaseService';
 
 /**
  * HomeScreen displays vocabulary statistics, learning progress, and access
@@ -22,6 +28,7 @@ import { getSavedWords, getLearningStats } from "../services/databaseService";
  */
 export default function HomeScreen() {
   const navigation = useNavigation();
+  const { user } = useAuth();
   const [recentWords, setRecentWords] = useState([]);
   const [stats, setStats] = useState({
     total: 0,
