@@ -35,10 +35,14 @@ import {
 } from "react-native-paper";
 
 // Service and component imports
-import { getSavedWords, deleteWord } from "../services/databaseService";
+import { getWords, deleteWord } from "../services/supabaseService";
+import { useAuth } from "../contexts/AuthContext";
 import SpeakButton from "../components/SpeakButton";
 
 export default function MyWordsScreen() {
+  // Get current user
+  const { user } = useAuth();
+
   // Data state - manages vocabulary items and their filtered subsets
   const [savedWords, setSavedWords] = useState([]);
   const [filteredWords, setFilteredWords] = useState([]);
@@ -55,7 +59,7 @@ export default function MyWordsScreen() {
    */
   const loadSavedWords = async () => {
     setLoading(true);
-    const words = await getSavedWords();
+    const words = await getWords(user.id);
     setSavedWords(words);
 
     // Extract unique categories
@@ -107,10 +111,8 @@ export default function MyWordsScreen() {
 
   // Handle word deletion
   const handleDeleteWord = async (id) => {
-    const success = await deleteWord(id);
-    if (success) {
-      loadSavedWords();
-    }
+    await deleteWord(user.id, id);
+    loadSavedWords();
   };
 
   // Load words when screen comes into focus
@@ -193,9 +195,8 @@ export default function MyWordsScreen() {
             <Card key={word.id} style={styles.wordCard}>
               <Card.Title
                 title={word.word}
-                subtitle={`${
-                  word.language === "en" ? "English" : "Finnish"
-                } . ${word.category}`}
+                subtitle={`${word.language === "en" ? "English" : "Finnish"
+                  } . ${word.category}`}
                 right={(props) => (
                   <View style={{ flexDirection: "row" }}>
                     <SpeakButton text={word.word} language={word.language} />

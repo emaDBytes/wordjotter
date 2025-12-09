@@ -41,12 +41,13 @@ export default function App() {
   }, []);
 
   return (
-    <PaperProvider theme={appTheme}>
-      <StatusBar style="auto" />
+    <AuthProvider>
+      <PaperProvider theme={appTheme}>
 
-      <AuthProvider>
+        <StatusBar style="auto" />
         <AppNavigator />
-      </AuthProvider>
-    </PaperProvider>
+
+      </PaperProvider>
+    </AuthProvider>
   );
 }

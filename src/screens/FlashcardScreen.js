@@ -6,21 +6,16 @@
  * navigate between cards, and mark words as known or needing practice.
  */
 
-// React and React Native imports
 import React, { useState, useEffect } from "react";
 import { StyleSheet, View, Animated, TouchableOpacity } from "react-native";
-
-// React and React Native imports
 import { Text, Button, Snackbar } from "react-native-paper";
 
-// Custom component imports
 import SpeakButton from "../components/SpeakButton";
-
-// Service imports
+import { useAuth } from "../contexts/AuthContext";
 import {
   getWordsForReview,
   updateWordAfterReview,
-} from "../services/learningService";
+} from "../services/supabaseService";
 
 /**
  * FlashcardScreen displays interactive flashcards for vocabulary learning
@@ -29,6 +24,9 @@ import {
  * @returns {React.Component} Flashcard learning interface
  */
 export default function FlashcardScreen() {
+  // Get current user
+  const { user } = useAuth();
+
   // Flashcard data state
   const [cards, setCards] = useState([]); // Array of vocabulary cards for review
   const [currentIndex, setCurrentIndex] = useState(0); // Index of current card being shown
@@ -52,7 +50,7 @@ export default function FlashcardScreen() {
    */
   const loadCards = async () => {
     try {
-      const words = await getWordsForReview();
+      const words = await getWordsForReview(user.id);
 
       if (words && words.length > 0) {
         // Create a copy of the array
@@ -184,7 +182,7 @@ export default function FlashcardScreen() {
     try {
       if (cards.length > 0 && currentIndex < cards.length) {
         const currentWord = cards[currentIndex];
-        await updateWordAfterReview(currentWord.id, true);
+        await updateWordAfterReview(user.id, currentWord.id, true);
 
         // Show feedback
         setSnackbarMessage(`Sweet! "${currentWord.word}" leveled up!`);
@@ -206,7 +204,7 @@ export default function FlashcardScreen() {
     try {
       if (cards.length > 0 && currentIndex < cards.length) {
         const currentWord = cards[currentIndex];
-        await updateWordAfterReview(currentWord.id, false);
+        await updateWordAfterReview(user.id, currentWord.id, false);
 
         // Show feedback
         setSnackbarMessage(

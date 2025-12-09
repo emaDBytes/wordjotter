@@ -13,8 +13,8 @@
  */
 
 // React and React Native imports
-import React, { useState, useEffect } from "react";
-import { StyleSheet, View, Platform, Alert } from "react-native";
+import { useState, useEffect } from "react";
+import { StyleSheet, View, Alert } from "react-native";
 
 // UI component imports
 import { Text, Switch, Button, Card, Snackbar } from "react-native-paper";
@@ -31,9 +31,12 @@ import {
 import {
   saveReminderSetting,
   getReminderSettings,
-} from "../services/databaseService";
+} from "../services/supabaseService";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function ReminderScreen() {
+  const { user } = useAuth();
+
   // Feature state - controls main reminder functionality
   const [enabled, setEnabled] = useState(false);
   const [time, setTime] = useState(new Date());
@@ -71,7 +74,7 @@ export default function ReminderScreen() {
    */
   const loadSettings = async () => {
     try {
-      const settings = await getReminderSettings();
+      const settings = await getReminderSettings(user.id);
       console.log("Retrieved settings: ", settings);
 
       // Set the toggle state based on both permission and saved setting
@@ -143,7 +146,7 @@ export default function ReminderScreen() {
     const minute = selectTime.getMinutes();
 
     // Save to database
-    await saveReminderSetting({
+    await saveReminderSetting(user.id, {
       enabled: isEnabled,
       hour,
       minute,

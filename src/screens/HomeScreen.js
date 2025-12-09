@@ -12,13 +12,9 @@ import { StyleSheet, View, ScrollView } from "react-native";
 import { Text, Card, Button, List, Divider } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 
-import { getSavedWords, getLearningStats } from "../services/databaseService";
-import { useAuth } from '../contexts/AuthContext';
-import {
-  addWord,
-  getWords,
-  deleteWord
-} from '../services/supabaseService';
+import { getWords } from "../services/supabaseService";
+import { useAuth } from "../contexts/AuthContext";
+import { logoutUser } from "../services/supabaseAuthService";
 
 /**
  * HomeScreen displays vocabulary statistics, learning progress, and access
@@ -29,6 +25,11 @@ import {
 export default function HomeScreen() {
   const navigation = useNavigation();
   const { user } = useAuth();
+
+  const handleLogout = async () => {
+    await logoutUser();
+  };
+
   const [recentWords, setRecentWords] = useState([]);
   const [stats, setStats] = useState({
     total: 0,
@@ -51,23 +52,39 @@ export default function HomeScreen() {
    */
   const loadData = async () => {
     try {
-      const words = await getSavedWords();
+      const words = await getWords(user.id);
 
       // Get 5 most recent words
       setRecentWords(words.slice(0, 5));
 
-      // Get learning statistics for progress display
-      const learningStats = await getLearningStats();
-      console.log("Learning stats: ", learningStats);
+      // Calculate learning statistics from Firestore data
+      let knownWords = 0;
+      let needPractice = 0;
+      const learningLevels = [0, 0, 0, 0, 0, 0];
 
-      // Update statistics state with calculated values
+      words.forEach((word) => {
+        // Use 'difficulty' field (Firestore) which maps to learning level
+        const level = word.difficulty || 0;
+
+        if (level >= 0 && level < learningLevels.length) {
+          learningLevels[level]++;
+        }
+
+        if (level >= 3) {
+          knownWords++;
+        } else {
+          needPractice++;
+        }
+      });
+
+      // Update statistics state
       setStats({
         total: words.length,
         english: words.filter((word) => word.language === "en").length,
         finnish: words.filter((word) => word.language === "fi").length,
-        knownWords: learningStats.knownWords,
-        needPractice: learningStats.needPractice,
-        learningLevels: learningStats.learningLevels,
+        knownWords: knownWords,
+        needPractice: needPractice,
+        learningLevels: learningLevels,
       });
     } catch (error) {
       console.error("Error in loading data: ", error);
@@ -84,6 +101,12 @@ export default function HomeScreen() {
         <Text variant="titleMedium" style={styles.subtitle}>
           Your Epic Bilingual Word Vault
         </Text>
+        <Text variant="bodySmall" style={styles.userEmail}>
+          {user?.email}
+        </Text>
+        <Button mode="outlined" onPress={handleLogout} style={styles.logoutButton}>
+          Sign Out
+        </Button>
       </View>
 
       {/* Language Statistics Card */}
@@ -322,5 +345,14 @@ const styles = StyleSheet.create({
     marginTop: 8,
     fontStyle: "italic",
     color: "#666",
+  },
+  userEmail: {
+    textAlign: "center",
+    color: "#666",
+    marginTop: 8,
+  },
+  logoutButton: {
+    marginTop: 12,
+    alignSelf: "center",
   },
 });

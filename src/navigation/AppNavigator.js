@@ -1,111 +1,93 @@
 /**
- * App Navigator for WordJotter
- * 
- * Handles navigation structure with authentication flow.
- * Shows auth screens when logged out, main tabs when logged in.
- * 
- * @module navigation/AppNavigator
+ * App Navigation Component
+ *
+ * Handles the primary navigation structure of the application using React Navigation.
+ * Implements authentication flow and bottom tab navigator for authenticated users.
  */
 
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { ActivityIndicator, View } from 'react-native';
-import { useTheme } from 'react-native-paper';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import React, { useState } from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { View, StyleSheet } from "react-native";
+import { Snackbar, ActivityIndicator } from "react-native-paper";
+import { Ionicons } from "@expo/vector-icons";
 
-import { useAuth } from '../contexts/AuthContext';
+// Screen imports
+import HomeScreen from "../screens/HomeScreen";
+import SearchScreen from "../screens/SearchScreen";
+import MyWordsScreen from "../screens/MyWordsScreen";
+import FlashcardScreen from "../screens/FlashcardScreen";
+import ReminderScreen from "../screens/ReminderScreen";
+import QuickNotesScreen from "../screens/QuickNotesScreen";
+import LoginScreen from "../screens/LoginScreen";
+import SignUpScreen from "../screens/SignUpScreen";
 
-// Auth Screens
-import LoginScreen from '../screens/LoginScreen';
-import SignUpScreen from '../screens/SignUpScreen';
+// Component imports
+import QuickJotButton from "../components/QuickJotButton";
+import QuickJotModal from "../components/QuickJotModal";
 
-// Main App Screens
-import HomeScreen from '../screens/HomeScreen';
-import SearchScreen from '../screens/SearchScreen';
-import MyWordsScreen from '../screens/MyWordsScreen';
-import QuickNotesScreen from '../screens/QuickNotesScreen';
-import FlashcardScreen from '../screens/FlashcardScreen';
-import ReminderScreen from '../screens/ReminderScreen';
+// Service imports - SUPABASE
+import { saveQuickNote } from "../services/supabaseService";
 
-const Stack = createNativeStackNavigator();
+// Auth imports
+import { useAuth } from "../contexts/AuthContext";
+
 const Tab = createBottomTabNavigator();
+const Stack = createNativeStackNavigator();
 
 /**
- * Authentication Stack Navigator
+ * AuthStack for unauthenticated users
  */
-const AuthStack = () => (
-  <Stack.Navigator screenOptions={{ headerShown: false }}>
-    <Stack.Screen name="Login" component={LoginScreen} />
-    <Stack.Screen name="SignUp" component={SignUpScreen} />
-  </Stack.Navigator>
-);
+function AuthStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Login" component={LoginScreen} />
+      <Stack.Screen name="SignUp" component={SignUpScreen} />
+    </Stack.Navigator>
+  );
+}
 
 /**
- * Main Tab Navigator for authenticated users
+ * MainTabs for authenticated users
  */
-const MainTabs = () => {
-  const theme = useTheme();
-
+function MainTabs() {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
 
-          switch (route.name) {
-            case 'Home':
-              iconName = focused ? 'home' : 'home-outline';
-              break;
-            case 'Search':
-              iconName = focused ? 'magnify' : 'magnify';
-              break;
-            case 'MyWords':
-              iconName = focused ? 'book-open-page-variant' : 'book-open-page-variant-outline';
-              break;
-            case 'QuickNotes':
-              iconName = focused ? 'lightning-bolt' : 'lightning-bolt-outline';
-              break;
-            case 'Flashcards':
-              iconName = focused ? 'cards' : 'cards-outline';
-              break;
-            default:
-              iconName = 'circle';
+          if (route.name === "Home") {
+            iconName = focused ? "home" : "home-outline";
+          } else if (route.name === "Search") {
+            iconName = focused ? "search" : "search-outline";
+          } else if (route.name === "My Words") {
+            iconName = focused ? "book" : "book-outline";
+          } else if (route.name === "Flashcards") {
+            iconName = focused ? "albums" : "albums-outline";
+          } else if (route.name === "Reminders") {
+            iconName = focused ? "notifications" : "notifications-outline";
+          } else if (route.name === "Quick Notes") {
+            iconName = focused ? "document-text" : "document-text-outline";
           }
 
-          return <MaterialCommunityIcons name={iconName} size={size} color={color} />;
+          return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: theme.colors.primary,
-        tabBarInactiveTintColor: 'gray',
+        tabBarActiveTintColor: "#6200ee",
+        tabBarInactiveTintColor: "gray",
         headerShown: true,
       })}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Search" component={SearchScreen} />
-      <Tab.Screen name="MyWords" component={MyWordsScreen} options={{ title: 'My Words' }} />
-      <Tab.Screen name="QuickNotes" component={QuickNotesScreen} options={{ title: 'Quick Notes' }} />
+      <Tab.Screen name="My Words" component={MyWordsScreen} />
       <Tab.Screen name="Flashcards" component={FlashcardScreen} />
+      <Tab.Screen name="Reminders" component={ReminderScreen} />
+      <Tab.Screen name="Quick Notes" component={QuickNotesScreen} />
     </Tab.Navigator>
   );
-};
-
-/**
- * Main App Stack (includes tabs + modal screens)
- */
-const AppStack = () => (
-  <Stack.Navigator>
-    <Stack.Screen
-      name="MainTabs"
-      component={MainTabs}
-      options={{ headerShown: false }}
-    />
-    <Stack.Screen
-      name="Reminders"
-      component={ReminderScreen}
-      options={{ title: 'Study Reminders' }}
-    />
-  </Stack.Navigator>
-);
+}
 
 /**
  * Root Navigator Component
@@ -113,19 +95,80 @@ const AppStack = () => (
 const AppNavigator = () => {
   const { user, loading } = useAuth();
 
+  // Modal visibility state
+  const [quickJotVisible, setQuickJotVisible] = useState(false);
+
+  // Feedback notification states
+  const [snackbarVisible, setSnackbarVisible] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+
+  // Handle saving quick note - USES user.id FOR SUPABASE
+  const handleSaveQuickNote = async (noteData) => {
+    try {
+      await saveQuickNote(user.id, noteData);
+      setSnackbarMessage(`"${noteData.word}" jotted for later!`);
+      setSnackbarVisible(true);
+    } catch (error) {
+      console.error("Error saving quick note:", error);
+      setSnackbarMessage("Failed to save note. Please try again.");
+      setSnackbarVisible(true);
+    }
+  };
+
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" />
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#6200ee" />
       </View>
     );
   }
 
   return (
     <NavigationContainer>
-      {user ? <AppStack /> : <AuthStack />}
+      {user ? (
+        <View style={{ flex: 1 }}>
+          <MainTabs />
+
+          {/* Floating Quick Jot Button - appears on all screens */}
+          <QuickJotButton onPress={() => setQuickJotVisible(true)} />
+
+          {/* Global Quick Jot Modal */}
+          <QuickJotModal
+            visible={quickJotVisible}
+            onDismiss={() => setQuickJotVisible(false)}
+            onSave={(noteData) => {
+              handleSaveQuickNote(noteData);
+              setQuickJotVisible(false);
+            }}
+          />
+
+          {/* Global Snackbar for feedback */}
+          <Snackbar
+            visible={snackbarVisible}
+            onDismiss={() => setSnackbarVisible(false)}
+            duration={3000}
+            action={{
+              label: "OK",
+              onPress: () => setSnackbarVisible(false),
+            }}
+          >
+            {snackbarMessage}
+          </Snackbar>
+        </View>
+      ) : (
+        <AuthStack />
+      )}
     </NavigationContainer>
   );
 };
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
+  },
+});
 
 export default AppNavigator;

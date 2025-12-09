@@ -40,13 +40,17 @@ import {
 
 // Service and component imports
 import SpeakButton from "../components/SpeakButton";
-import { markNoteProcessed, saveWord } from "../services/databaseService";
+import { markNoteProcessed } from "../services/supabaseService";
+import { addWord } from "../services/supabaseService";
+import { useAuth } from "../contexts/AuthContext";
 import {
   fetchWordDefinition,
   openFinnishDictionary,
 } from "../services/dictionaryService";
 
 export default function SearchScreen({ route }) {
+  // Get current user
+  const { user } = useAuth();
   // Search and language state
   const [searchTerm, setSearchTerm] = useState("");
   const [language, setLanguage] = useState("en"); // 'en' for English and 'fi' for Finnish.
@@ -113,11 +117,18 @@ export default function SearchScreen({ route }) {
       category: meaning.partOfSpeech,
     };
 
-    const success = await saveWord(wordData);
+    let success = false;
+    try {
+      await addWord(user.id, wordData);
+      success = true;
+    } catch (error) {
+      console.error("Error saving word:", error);
+      success = false;
+    }
 
     // If saving was successful and we have a quickNoteId, mark it as processed
     if (success && quickNoteId) {
-      await markNoteProcessed(quickNoteId);
+      await markNoteProcessed(user.id, quickNoteId);
     }
 
     if (success) {
@@ -153,11 +164,18 @@ export default function SearchScreen({ route }) {
       category: "default",
     };
 
-    const success = await saveWord(wordData);
+    let success = false;
+    try {
+      await addWord(user.id, wordData);
+      success = true;
+    } catch (error) {
+      console.error("Error saving word:", error);
+      success = false;
+    }
 
     // If saving was successful and we have a quickNoteId, mark it as processed
     if (success && quickNoteId) {
-      await markNoteProcessed(quickNoteId);
+      await markNoteProcessed(user.id, quickNoteId);
     }
 
     if (success) {

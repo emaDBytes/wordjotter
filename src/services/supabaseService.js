@@ -281,7 +281,6 @@ export const saveReminderSetting = async (userId, settings) => {
             enabled: settings.enabled,
             hour: settings.hour,
             minute: settings.minute,
-            updated_at: new Date().toISOString()
         }, {
             onConflict: 'user_id'
         });
